@@ -147,3 +147,22 @@ M1 mac 系统PyMiniRacer不能使用，访问:
  mootdx/utils/__init__.py         |   6 +-
  summary.md                       |  27 +++
 ```
+
+### 2026-05-04 18:08:00
+```
+ README.md                    |   2 +-
+ summary.md                   |  32 ++++--
+ tests/test_adapter_tdxpy.py  | 225 +++++++++++++++++++++++++++++++++++++++++++
+ tests/test_affair_unit.py    | 111 +++++++++++++++++++++
+ tests/test_config.py         |  75 +++++++++++++++
+ tests/test_config_setup.py   |  63 ++++++++++++
+ tests/test_exceptions.py     |  61 ++++++++++++
+ tests/test_exhq_adapter.py   |  90 +++++++++++++++++
+ tests/test_hq_adapter.py     | 180 ++++++++++++++++++++++++++++++++++
+ tests/test_quotes_more.py    | 157 ++++++++++++++++++++++++++++++
+ tests/test_quotes_opentdx.py | 147 ++++++++++++++++++++++++++++
+ tests/test_quotes_unit.py    | 111 +++++++++++++++++++++
+ tests/test_server_more.py    |  70 ++++++++++++++
+ tests/test_server_unit.py    |  66 +++++++++++++
+ tests/test_tdxfinder.py      | 167 ++++++++++++++++++++++++++++++++
+```
