@@ -5,7 +5,6 @@ from mootdx.quotes import Quotes
 from mootdx.reader import Reader
 
 
-@pytest.mark.skip(reason='暂时不做重复测试')
 class TestFactor:
 
     # 初始化工作

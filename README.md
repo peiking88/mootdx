@@ -19,6 +19,8 @@
 版本更新(倒序)
 --------------
 
+- 0.11.7: 新增行情适配器层，支持 opentdx 新协议；更新全部行情服务器地址；新增 HF 高级行情支持；修复 pandas 兼容性问题
+
 版本更新日志: <https://mootdx.readthedocs.io/zh_CN/latest/history/>
 
 运行环境

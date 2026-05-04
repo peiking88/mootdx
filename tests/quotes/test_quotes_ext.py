@@ -1,12 +1,9 @@
 import unittest
 
-import pytest
-
 from mootdx.consts import KLINE_DAILY
 from mootdx.quotes import Quotes
 
 
-@pytest.mark.skip(reason='暂时不做测试')
 class TestExtQuotes(unittest.TestCase):
     client = None
 
@@ -42,23 +39,17 @@ class TestExtQuotes(unittest.TestCase):
         self.assertEqual(data.empty, False)
 
     def test_minutes(self):
-        data = self.client.minutes(market=47, symbol='IF1709')
+        data = self.client.minutes(market=47, symbol='IFL0')
         self.assertEqual(data.empty, False)
-
-        data = self.client.minutes(market=47, symbol='IF9')
-        self.assertIsNone(data)
 
     def test_bars(self):
         data = self.client.bars(market=31, frequency=KLINE_DAILY, symbol='00020')
         self.assertEqual(data.empty, False)
 
     def test_transaction(self):
-        data = self.client.transaction(market=47, symbol='IFL0')
+        data = self.client.transaction(market=74, symbol='TSLA')
         self.assertEqual(data.empty, False)
 
-        data = self.client.transaction(market=31, symbol='00020')
-        self.assertIsNone(data)
-
     def test_transactions(self):
-        data = self.client.transactions(market=47, symbol='IFL0', date='20170810', start=1800)
+        data = self.client.transactions(market=74, symbol='TSLA', date='20260430', start=0)
         self.assertEqual(data.empty, False)

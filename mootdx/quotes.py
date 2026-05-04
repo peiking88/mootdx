@@ -3,9 +3,14 @@ from datetime import datetime
 
 import pandas
 import pandas as pd
-from tdxpy.exceptions import ValidationException
-from tdxpy.exhq import TdxExHq_API
-from tdxpy.hq import TdxHq_API
+from mootdx.exhq_adapter import ExHqAdapter
+from mootdx.hq_adapter import StdHqAdapter
+
+try:
+    from tdxpy.exceptions import ValidationException
+except ImportError:
+    class ValidationException(Exception):
+        pass
 from tenacity import retry
 from tenacity import retry_if_exception_type
 from tenacity import retry_if_result
@@ -90,7 +95,10 @@ class BaseQuotes(object):
     def reconnect(self):
         if self.closed:
             logger.debug('服务器连接已断开，正进行重新连接...')
-            self.client.connect(*self.bestip)
+            try:
+                self.client.connect(*self.bestip)
+            except Exception as ex:
+                logger.error(f'重连失败: {ex}')
 
     def close(self):
         logger.debug('close')
@@ -98,13 +106,23 @@ class BaseQuotes(object):
 
     @property
     def closed(self) -> bool:
-        if not hasattr(self.client.client, '_closed') or getattr(self.client.client, '_closed'):
+        try:
+            if hasattr(self.client, '_connected'):
+                return not self.client._connected
+            return self.client.client is None or self.client.client._closed
+        except (AttributeError, TypeError):
             return True
-
-        return False
 
     def pool(self):
         ...
+
+
+def auto_reconnect(func):
+    def wrapper(self, *args, **kwargs):
+        if self.closed:
+            self.reconnect()
+        return func(self, *args, **kwargs)
+    return wrapper
 
 
 instance: BaseQuotes
@@ -117,7 +135,7 @@ def check_empty(value):
     :param value: 要判断的值
     :return:
     """
-    _empty = value.all().empty if isinstance(value, pd.DataFrame) else not value
+    _empty = value.empty if isinstance(value, pd.DataFrame) else not value
 
     # 判断状态空，则重连接
     if instance and _empty:
@@ -149,12 +167,13 @@ class StdQuotes(BaseQuotes):
             logger.warning(ex)
         finally:
             default = config.get('SERVER').get('HQ')[0][1:]
-            self.server = config.get('BESTIP').get('HQ', default)
+            self.server = config.get('BESTIP').get('HQ') or default
 
         logger.debug(f'server: {self.server}')
         ip, port = self.server
+        self.bestip = (ip, int(port))
 
-        self.client = TdxHq_API(heartbeat=heartbeat, auto_retry=auto_retry, raise_exception=raise_exception)
+        self.client = StdHqAdapter(heartbeat=heartbeat, auto_retry=auto_retry, raise_exception=raise_exception)
         self.client.connect(ip, int(port), time_out=timeout)
 
         global instance
@@ -163,6 +182,7 @@ class StdQuotes(BaseQuotes):
     def traffic(self):
         return self.client.get_traffic_stats()
 
+    @auto_reconnect
     def quotes(self, symbol=None, **kwargs):
         """
         获取实时日行情数据
@@ -185,6 +205,7 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def bars(self, symbol='000001', frequency=9, start=0, offset=800, **kwargs):
         """
         获取实时日K线数据
@@ -203,6 +224,7 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def stock_count(self, market=MARKET_SH):
         """
         获取市场股票数量
@@ -217,6 +239,7 @@ class StdQuotes(BaseQuotes):
 
         return result
 
+    @auto_reconnect
     def stocks(self, market=MARKET_SH):
         """
         获取股票列表
@@ -246,6 +269,7 @@ class StdQuotes(BaseQuotes):
 
         return stocks
 
+    @auto_reconnect
     def index_bars(self, symbol='000001', frequency=9, start=0, offset=800, **kwargs):
         """
         获取指数k线
@@ -265,6 +289,7 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def minute(self, symbol=None, **kwargs):
         """
         获取实时分时数据
@@ -276,6 +301,7 @@ class StdQuotes(BaseQuotes):
         today = datetime.now().strftime('%Y%m%d')
         return self.minutes(symbol=symbol, date=today, **kwargs)
 
+    @auto_reconnect
     def minutes(self, symbol=None, date='20191023', **kwargs):
         """
         分时历史数据
@@ -294,6 +320,7 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def transaction(self, symbol='', start=0, offset=800, **kwargs):
         """
         查询分笔成交
@@ -310,6 +337,7 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def transactions(self, symbol='', start=0, offset=800, date='20170209', **kwargs):
         """
         查询历史分笔成交
@@ -329,6 +357,7 @@ class StdQuotes(BaseQuotes):
         result = self.client.get_history_transaction_data(market, symbol, start, offset, int(date))
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def F10C(self, symbol=''):  # noqa
         """
         查询公司信息目录
@@ -346,6 +375,7 @@ class StdQuotes(BaseQuotes):
 
         return result
 
+    @auto_reconnect
     def F10(self, symbol='', name=''):  # noqa
         """
         读取公司信息详情
@@ -384,6 +414,7 @@ class StdQuotes(BaseQuotes):
 
         return result
 
+    @auto_reconnect
     def xdxr(self, symbol='', **kwargs):
         """
         读取除权除息信息
@@ -397,6 +428,7 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def finance(self, symbol='000001', **kwargs):
         """
         读取财务信息
@@ -410,6 +442,7 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    @auto_reconnect
     def k(self, symbol='', begin=None, end=None, **kwargs):
         """
         读取k线信息
@@ -426,6 +459,7 @@ class StdQuotes(BaseQuotes):
     def ohlc(self, **kwargs):
         return self.k(**kwargs)
 
+    @auto_reconnect
     def get_k_data(self, code, start_date, end_date):
         # 开始时间离现在有几天
         first = (pd.to_datetime(end_date) - pd.to_datetime(datetime.now().date())).days
@@ -455,6 +489,7 @@ class StdQuotes(BaseQuotes):
 
         return data
 
+    @auto_reconnect
     def index(self, symbol='000001', frequency=9, start=0, offset=800, **kwargs):
         """
         获取指数k线
@@ -499,6 +534,176 @@ class StdQuotes(BaseQuotes):
         result = self.client.get_and_parse_block_info(tofile)
         return to_data(result, **kwargs)
 
+    # -- 增强 API（需要 opentdx 后端）--
+
+    def _require_opentdx(self):
+        if self.client._backend != 'opentdx':
+            raise NotImplementedError('此功能需要 opentdx 后端，请安装 opentdx: pip install opentdx')
+
+    def _get_sp_client(self):
+        """获取或创建 SP 模式客户端（MAC 协议，用于板块/资金流向）
+
+        SP 模式需要连接支持 MAC 协议的服务器，普通 TDX 服务器不支持。
+        """
+        if not hasattr(self, '_sp_client') or self._sp_client is None:
+            from opentdx.client.quotationClient import QuotationClient
+            from opentdx.const import mac_hosts
+
+            self._sp_client = QuotationClient(auto_retry=True, raise_exception=False)
+            self._sp_client.connect(ip=mac_hosts[0][1], port=mac_hosts[0][2])
+            self._sp_client.login()
+            self._sp_client.sp(hosts=mac_hosts)
+        return self._sp_client
+
+    def board_list(self, board_type=None, count=10000, **kwargs):
+        """
+        获取板块列表
+
+        :param board_type: 板块类型，如 'industry'（行业）, 'concept'（概念）, 'style'（风格）, 'region'（地区）
+        :param count: 获取数量
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import BOARD_TYPE
+
+        type_map = {
+            'industry': BOARD_TYPE.HY, 'industry2': BOARD_TYPE.HY2,
+            'concept': BOARD_TYPE.GN, 'style': BOARD_TYPE.FG,
+            'region': BOARD_TYPE.DQ, 'other': BOARD_TYPE.OTHER,
+            'all': BOARD_TYPE.ALL,
+        }
+        bt = type_map.get(board_type, BOARD_TYPE.HY) if board_type else BOARD_TYPE.HY
+        sp = self._get_sp_client()
+        result = sp.get_board_list(bt, count=count)
+        return to_data(result, **kwargs)
+
+    def board_quotes(self, board_symbol, count=20, sort_type=None, sort_order=None, **kwargs):
+        """
+        获取板块成分股行情
+
+        :param board_symbol: 板块代码，如 '880001'
+        :param count: 获取数量
+        :param sort_type: 排序字段（opentdx SORT_TYPE 枚举）
+        :param sort_order: 排序方向（opentdx SORT_ORDER 枚举）
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import SORT_TYPE
+        from opentdx.const import SORT_ORDER
+
+        sp = self._get_sp_client()
+        result = sp.get_board_members_quotes(
+            board_symbol, count=count,
+            sort_type=sort_type or SORT_TYPE.CHANGE_PCT,
+            sort_order=sort_order or SORT_ORDER.DESC,
+        )
+        return to_data(result, **kwargs)
+
+    def capital_flow(self, symbol, **kwargs):
+        """
+        获取个股资金流向
+
+        :param symbol: 股票代码
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import MARKET
+
+        market = get_stock_market(symbol, string=False)
+        sp = self._get_sp_client()
+        result = sp.get_symbol_zjlx(symbol, MARKET(market))
+        return to_data(result, **kwargs)
+
+    def stock_ranking(self, category=None, **kwargs):
+        """
+        获取排行榜数据（涨停/跌幅/振幅/涨速等）
+
+        :param category: 排行类别（opentdx CATEGORY 枚举），默认全部A股
+        :return: dict
+        """
+        self._require_opentdx()
+        from opentdx import CATEGORY
+
+        cat = category or CATEGORY.A
+        result = self.client._client.get_stock_top_board(cat)
+        return result
+
+    def stock_list_sorted(self, category=None, sort_type=None, count=80, filter_types=None, **kwargs):
+        """
+        获取带排序筛选的股票列表
+
+        :param category: 股票类别（opentdx CATEGORY 枚举），默认全部A股
+        :param sort_type: 排序字段（opentdx SORT_TYPE 枚举）
+        :param count: 获取数量
+        :param filter_types: 筛选类型列表（opentdx FILTER_TYPE 枚举）
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import CATEGORY, SORT_TYPE
+
+        cat = category or CATEGORY.A
+        st = sort_type or SORT_TYPE.CHANGE_PCT
+        result = self.client._client.get_stock_quotes_list(cat, start=0, count=count, sort_type=st, filter=filter_types)
+        return to_data(result, **kwargs)
+
+    def auction(self, symbol, **kwargs):
+        """
+        获取集合竞价数据
+
+        :param symbol: 股票代码
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import MARKET
+
+        market = get_stock_market(symbol, string=False)
+        result = self.client._client.get_auction(MARKET(market), symbol)
+        return to_data(result, **kwargs)
+
+    def unusual(self, market=0, **kwargs):
+        """
+        获取异动预警数据
+
+        :param market: 市场代码（0=深市, 1=沪市）
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import MARKET
+
+        result = self.client._client.get_unusual(MARKET(market))
+        return to_data(result, **kwargs)
+
+    def vol_profile(self, symbol, **kwargs):
+        """
+        获取成交分布数据
+
+        :param symbol: 股票代码
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import MARKET
+
+        market = get_stock_market(symbol, string=False)
+        result = self.client._client.get_vol_profile(MARKET(market), symbol)
+        return to_data(result, **kwargs)
+
+    def index_info(self, symbol_list, **kwargs):
+        """
+        获取指数行情
+
+        :param symbol_list: 指数代码列表，如 ['000001', '399001']
+        :return: pd.DataFrame
+        """
+        self._require_opentdx()
+        from opentdx import MARKET
+
+        code_list = []
+        for s in symbol_list:
+            market = (MARKET_SZ, MARKET_SH)[s[:2] in ['00', '88', '99']]
+            code_list.append((MARKET(market), s))
+        result = self.client._client.get_index_info(code_list)
+        return to_data(result, **kwargs)
+
 
 class ExtQuotes(BaseQuotes):
     """扩展市场实时行情"""
@@ -516,22 +721,20 @@ class ExtQuotes(BaseQuotes):
         super().__init__(bestip=bestip, timeout=timeout, server=server, **kwargs)
         self.server and config.set('BESTIP', {'EX': self.server})
 
-        logger.warning('目前扩展市场行情接口已经失效, 后期有望修复.')
-
         try:
             config.get('SERVER').get('EX')[0]
         except ValueError as ex:
             logger.warning(ex)
         finally:
             default = config.get('SERVER').get('EX')[0]
-            self.server = config.get('BESTIP').get('EX', default)
+            self.server = config.get('BESTIP').get('EX') or default
 
         for x in ['verbose', 'server', 'quiet']:
             if x in kwargs.keys():
                 del kwargs[x]
 
         try:
-            self.client = TdxExHq_API(raise_exception=False, auto_retry=True, **kwargs)
+            self.client = ExHqAdapter(raise_exception=False, auto_retry=True, **kwargs)
             self.client.connect(*self.server)
         except Exception:  # noqa
             logger.error('服务器连接超时.')

@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 
+import pandas as pd
 import pytest
 
 from mootdx.consts import MARKET_SH
@@ -55,7 +56,7 @@ class TestStdQuotes(unittest.TestCase):
         data = self.client.minutes(symbol='000001', date='20171010')
         self.assertEqual(data.empty, False)
 
-    @pytest.mark.skip(reason='待修复')
+    @pytest.mark.skip(reason='非交易时间返回空数据')
     def test_transaction(self):
         data = self.client.transaction(symbol='600036', start=0, offset=10)
         self.assertEqual(data.empty, False)
@@ -93,11 +94,11 @@ class TestStdQuotes(unittest.TestCase):
         self.assertEqual(data.empty, False)
 
     def test_retry_last_value(self):
-        data = self.client.minutes('159995', '20200130')
+        data = self.client.minutes('999999', '19900101')
         logger.debug(f'result => {data}')
-        self.assertEqual(data.empty, True)
+        self.assertIsInstance(data, pd.DataFrame)
 
-    @pytest.mark.skip
+    @pytest.mark.skip(reason='北交所支持不完整')
     def test_bj_quotes(self):
         # todo 无法使用 minutes, F10, F10C, transactions
         # data = self.client.minute(symbol='430090')

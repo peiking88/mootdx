@@ -7,7 +7,7 @@ from struct import calcsize
 from struct import unpack
 
 import pandas as pd
-from tdxpy.hq import TdxHq_API
+from mootdx.hq_adapter import StdHqAdapter
 
 from ..logger import logger
 from .base import BaseFinancial
@@ -50,7 +50,7 @@ class FinancialList(BaseFinancial):
 
         tmp = tempfile.NamedTemporaryFile(delete=True)
 
-        api = TdxHq_API(**kwargs)
+        api = StdHqAdapter(**kwargs)
         api.need_setup = False
 
         with api.connect(*self.bestip):
@@ -108,7 +108,7 @@ class Financial(BaseFinancial):
         if not filename:
             raise Exception('Param filename is not set')
 
-        api = TdxHq_API()
+        api = StdHqAdapter()
         api.need_setup = False
 
         with api.connect(*self.bestip):

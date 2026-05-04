@@ -67,3 +67,6 @@ target/
 .idea
 .github
 .DS_Store
+
+# 数据输出目录
+output/*

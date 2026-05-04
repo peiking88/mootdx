@@ -37,6 +37,13 @@ def setup():
         load_config()
     except (json.JSONDecodeError, FileNotFoundError):
         logger.warning(f'未找到配置文件 {CONF}, 正在生成配置文件.')
+
+        try:
+            from mootdx.tdxfinder import update_servers_from_tdx
+            update_servers_from_tdx()
+        except Exception:
+            pass
+
         bestip(console=False, limit=5, sync=False)
     finally:
         load_config()

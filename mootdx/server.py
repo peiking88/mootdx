@@ -5,14 +5,17 @@ import socket
 import time
 from functools import partial
 
-from tdxpy.constants import hq_hosts
-from tdxpy.exhq import TdxExHq_API
-from tdxpy.hq import TdxHq_API
-
 from mootdx.consts import CONFIG
 from mootdx.consts import EX_HOSTS
 from mootdx.consts import GP_HOSTS
 from mootdx.consts import HQ_HOSTS
+from mootdx.exhq_adapter import ExHqAdapter
+from mootdx.hq_adapter import StdHqAdapter
+
+try:
+    from opentdx.const import main_hosts as hq_hosts
+except ImportError:
+    from tdxpy.constants import hq_hosts
 from mootdx.logger import logger
 from mootdx.utils import get_config_path
 
@@ -65,6 +68,9 @@ def connect(proxy: dict) -> dict:
     except ConnectionRefusedError as ex:  # noqa
         logger.debug('{addr},{port} 验证失败.'.format(**proxy))
         proxy['time'] = None
+    except OSError as ex:  # noqa
+        logger.debug('{addr},{port} 连接失败: {err}.'.format(err=ex, **proxy))
+        proxy['time'] = None
 
     return proxy
 
@@ -73,7 +79,7 @@ def connect2(proxy, index='HQ'):
     if index == 'GP':
         return connect(proxy)
 
-    api = (TdxHq_API(), TdxExHq_API())[index != 'HQ']
+    api = (StdHqAdapter(), ExHqAdapter())[index != 'HQ']
     fun = ('get_security_count', 'get_instrument_count')[index != 'HQ']
 
     proxy['time'] = None

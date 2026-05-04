@@ -5,7 +5,6 @@ from mootdx.logger import logger
 from mootdx.quotes import Quotes
 
 
-@unittest.skip(reason='暂时不做重复测试')
 class TestBestIP(unittest.TestCase):
     def setup(self):
         ch = logging.StreamHandler()
