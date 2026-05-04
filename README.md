@@ -128,3 +128,22 @@ M1 mac 系统PyMiniRacer不能使用，访问:
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/mootdx/mootdx.svg)](https://starchart.cc/mootdx/mootdx)
+
+### 2026-05-04 10:51:50
+```
+ .gitignore                       |   3 +
+ CLAUDE.md                        |  29 +++
+ README.md                        |   2 +
+ mootdx/config.py                 |   7 +
+ mootdx/consts.py                 | 110 ++++++-----
+ mootdx/exhq_adapter.py           | 293 ++++++++++++++++++++++++++++
+ mootdx/financial/base.py         |   2 +-
+ mootdx/financial/financial.py    |   6 +-
+ mootdx/hq_adapter.py             | 398 +++++++++++++++++++++++++++++++++++++++
+ mootdx/quotes.py                 | 231 +++++++++++++++++++++--
+ mootdx/server.py                 |  16 +-
+ mootdx/tdxfinder.py              |  76 ++++++++
+ mootdx/tools/reversion.py        |   5 +-
+ mootdx/utils/__init__.py         |   6 +-
+ summary.md                       |  27 +++
+```
