@@ -3,7 +3,7 @@
 #include <seastar/core/smp.hh>
 #include <seastar/core/when_all.hh>
 #include <seastar/core/file.hh>
-#include <seastar/core/fstream.hh>
+#include <seastar/core/temporary_buffer.hh>
 #include <seastar/core/seastar.hh>
 #include <seastar/core/thread.hh>
 #include <seastar/util/log.hh>
@@ -14,6 +14,7 @@
 #include <string>
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <chrono>
 
@@ -39,7 +40,10 @@ struct TaskResult {
     TaskResult& operator=(TaskResult&&) noexcept = default;
 };
 
-// 输出结果到 CSV：Seastar DMA I/O，按起点排序以保证稳定输出
+// 输出结果到 CSV：直接 dma_write + 双缓冲流式写入
+// - 每个 4MiB 缓冲填满后异步发起 dma_write，同时切换到另一缓冲继续填充
+// - 末尾不足一块时填零并 truncate 回真实大小，避免 file_output_stream 的状态机开销
+// - 直接把 fast_uint64_to_str 写入对齐 DMA 缓冲，省掉 std::string 中间拷贝
 future<void> save_to_csv(std::vector<TaskResult> results, std::string filename) {
     std::sort(results.begin(), results.end(),
               [](const TaskResult& a, const TaskResult& b) noexcept {
@@ -50,35 +54,82 @@ future<void> save_to_csv(std::vector<TaskResult> results, std::string filename) 
                             results = std::move(results)]() mutable {
         auto f = open_file_dma(filename,
                                open_flags::wo | open_flags::create | open_flags::truncate).get();
-        file_output_stream_options opts;
-        opts.buffer_size = 4 * 1024 * 1024;
-        auto out = make_file_output_stream(std::move(f), opts).get();
 
-        char tmp[32];
-        std::string line;
-        line.reserve(128 * 1024);
+        const size_t mem_align = f.memory_dma_alignment();
+        const size_t disk_align = f.disk_write_dma_alignment();
+        constexpr size_t kBufSize = 4 * 1024 * 1024;  // 4 MiB，必为 disk_align 的整数倍
+        static_assert((kBufSize & (kBufSize - 1)) == 0, "kBufSize must be power of 2");
 
-        auto append_u64 = [&](uint64_t v) {
+        auto buf_a = seastar::temporary_buffer<char>::aligned(mem_align, kBufSize);
+        auto buf_b = seastar::temporary_buffer<char>::aligned(mem_align, kBufSize);
+        char* cur = buf_a.get_write();
+        size_t cur_used = 0;
+        uint64_t file_offset = 0;
+        seastar::future<size_t> in_flight = seastar::make_ready_future<size_t>(size_t{0});
+        bool using_a = true;
+
+        // 仅在缓冲恰好写满时调用：此时整 kBufSize 都是有效数据，dma_write 安全
+        auto flush_full_buffer = [&]() {
+            in_flight.get();  // 等上次写入完成（保证另一缓冲安全可复用）
+            char* base = using_a ? buf_a.get_write() : buf_b.get_write();
+            in_flight = f.dma_write(file_offset, base, kBufSize);
+            file_offset += kBufSize;
+            using_a = !using_a;
+            cur = using_a ? buf_a.get_write() : buf_b.get_write();
+            cur_used = 0;
+        };
+
+        // 把任意长度字节序列写入双缓冲，跨边界时切片
+        auto put_bytes = [&](const char* src, size_t n) {
+            while (n > 0) {
+                const size_t can = std::min(n, kBufSize - cur_used);
+                std::memcpy(cur + cur_used, src, can);
+                cur_used += can;
+                src += can;
+                n -= can;
+                if (cur_used == kBufSize) [[unlikely]] flush_full_buffer();
+            }
+        };
+
+        auto put_byte = [&](char c) {
+            cur[cur_used++] = c;
+            if (cur_used == kBufSize) [[unlikely]] flush_full_buffer();
+        };
+
+        // uint64 最长 20 字符：先写 stack tmp，再 put_bytes 处理跨边界
+        auto put_u64 = [&](uint64_t v) {
+            char tmp[20];
             char* end = ::util::fast_uint64_to_str(v, tmp);
-            line.append(tmp, end - tmp);
+            put_bytes(tmp, static_cast<size_t>(end - tmp));
         };
 
         for (const auto& r : results) {
-            line.clear();
-            append_u64(r.task.start);
-            line.push_back('-');
-            append_u64(r.task.end);
-            line.push_back(',');
-            append_u64(static_cast<uint64_t>(r.core_id));
+            put_u64(r.task.start);
+            put_byte('-');
+            put_u64(r.task.end);
+            put_byte(',');
+            put_u64(static_cast<uint64_t>(r.core_id));
             for (uint64_t p : r.primes) {
-                line.push_back(',');
-                append_u64(p);
+                put_byte(',');
+                put_u64(p);
             }
-            line.push_back('\n');
-            out.write(line.data(), line.size()).get();
+            put_byte('\n');
         }
-        out.flush().get();
-        out.close().get();
+
+        in_flight.get();
+
+        // 末尾不足一块：填零至 disk_align 倍数，写入后用 truncate 恢复真实大小
+        if (cur_used > 0) {
+            char* base = using_a ? buf_a.get_write() : buf_b.get_write();
+            const size_t aligned = (cur_used + disk_align - 1) / disk_align * disk_align;
+            std::memset(base + cur_used, 0, aligned - cur_used);
+            const uint64_t real_total = file_offset + cur_used;
+            f.dma_write(file_offset, base, aligned).get();
+            f.truncate(real_total).get();
+        }
+
+        f.flush().get();
+        f.close().get();
     });
 }
 
