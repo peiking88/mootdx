@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "bugs": [
+    {
+      "id": "bug-002",
+      "timestamp": "2026-05-08T09:40:00+08:00",
+      "error_message": "gemma31b_seastar_prime 在 >=2e9 范围下所有 CPU 核长期 100%、耗时 114s；试除法 is_prime 随 n 增长呈 O(√n) 急速劣化",
+      "file": "src/gemma31b_seastar_prime.cpp",
+      "root_cause": "逐数试除 is_prime 为 O(√n)/数；stringstream 逐素数 << 格式化开销大；submit_to lambda 里同步执行整区间会长时间阻塞 reactor",
+      "fix": "改用项目共享 prime::segmented_sieve（位压缩奇数分段筛）；改用 util::fast_uint64_to_str 直写缓冲区；计算封进 seastar::async 线程栈；注意 seastar::util 与项目 util 命名冲突，需用 ::util 限定",
+      "tags": [
+        "performance",
+        "seastar",
+        "prime-sieve",
+        "namespace-collision",
+        "reactor-blocking"
+      ],
+      "related_bugs": [
+        "bug-001"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-08T09:40:00+08:00"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-05-08T05:47:33.910Z",
+      "error_message": "Missing guard clause",
+      "file": "src/gemma4_seastar_prime.cpp",
+      "root_cause": "No early return/throw for edge case: i >= num_tasks",
+      "fix": "Added guard clause: if (i >= num_tasks)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "cpp"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-08T05:47:33.910Z"
+    }
+  ]
+}

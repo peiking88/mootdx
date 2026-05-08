@@ -159,9 +159,9 @@ int main(int argc, char** argv) {
 
         auto compute_start = std::chrono::steady_clock::now();
 
-        // Round-Robin 静态分发：每核 1 次 submit_to，核内循环处理 i, i+N, i+2N, ...
-        // 相对每任务一次 submit_to，调度/跨 shard 消息量从 O(num_tasks) 降至 O(num_cores)
-        // 结果在所属 shard 上原地构建，未跨 shard 移动时不触发 cross-shard free
+        // 蛇形 Round-Robin 静态分发：偶数轮正向、奇数轮反向分配任务索引
+        // 每个 core 成对获得"密集(低值区间)+稀疏(高值区间)"任务，均衡负载
+        // 每核 1 次 submit_to，调度/跨 shard 消息量 O(num_cores)
         std::vector<future<std::vector<TaskResult>>> per_core_futs;
         per_core_futs.reserve(num_cores);
 
@@ -171,11 +171,14 @@ int main(int argc, char** argv) {
                     return seastar::async(
                         [c, num_cores, num_tasks, interval_size, total_range]() {
                             std::vector<TaskResult> bucket;
-                            const size_t my_count =
-                                (static_cast<size_t>(num_tasks) + num_cores - 1 - c) / num_cores;
-                            bucket.reserve(my_count);
-                            for (int i = static_cast<int>(c); i < num_tasks;
-                                 i += static_cast<int>(num_cores)) {
+                            const int N = static_cast<int>(num_cores);
+                            const int rounds = (num_tasks + N - 1) / N;
+                            bucket.reserve(rounds);
+                            const int ci = static_cast<int>(c);
+                            for (int k = 0; k < rounds; ++k) {
+                                const int i = k * N + ((k & 1) == 0
+                                    ? ci : N - 1 - ci);
+                                if (i >= num_tasks) break;
                                 uint64_t start = static_cast<uint64_t>(i) * interval_size + 2;
                                 uint64_t nominal_end =
                                     static_cast<uint64_t>(i + 1) * interval_size + 1;

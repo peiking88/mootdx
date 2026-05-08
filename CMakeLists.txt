@@ -54,3 +54,6 @@ target_link_libraries(kimi_seastar_prime Seastar::seastar)
 add_executable(dk4_seastar_prime src/dk4_seastar_prime.cpp)
 target_link_libraries(dk4_seastar_prime Seastar::seastar)
 
+
+add_executable(gemma4_seastar_prime src/gemma4_seastar_prime.cpp)
+target_link_libraries(gemma4_seastar_prime Seastar::seastar)
