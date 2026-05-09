@@ -70,3 +70,4 @@ target/
 
 # 数据输出目录
 output/*
+!output/.gitkeep
