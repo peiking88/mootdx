@@ -1,5 +1,7 @@
 # 标准行情接口
 
+底层基于 `opentdx` 实现，兼容 tdxpy 接口风格。
+
 下面是如何在程序里面调用本接口
 
 **参数说明:**
@@ -55,18 +57,18 @@ client.quotes(symbol=["000001", "600300"])
 **调用方法：**
 
 > frequency -> K线种类
-> 0 => 5分钟K线             => 5m
-> 1 => 15分钟K线            => 15m
-> 2 => 30分钟K线            => 30m
-> 3 => 小时K线              => 1h
-> 4 => 日K线 (小数点x100)    => days
-> 5 => 周K线                => week
-> 6 => 月K线                => mon
-> 7 => 1分钟K线(好像一样)     => 1m
-> 8 => 1分钟K线(好像一样)     => 1m
-> 9 => 日K线                => day
-> 10 => 季K线               => 3mon
-> 11 => 年K线               => year
+> 0 => 5分钟K线 => 5m
+> 1 => 15分钟K线 => 15m
+> 2 => 30分钟K线 => 30m
+> 3 => 小时K线 => 1h
+> 4 => 日K线 (小数点x100) => days
+> 5 => 周K线 => week
+> 6 => 月K线 => mon
+> 7 => 1分钟K线(好像一样) => 1m
+> 8 => 1分钟K线(好像一样) => 1m
+> 9 => 日K线 => day
+> 10 => 季K线 => 3mon
+> 11 => 年K线 => year
 
 如
 
@@ -130,18 +132,18 @@ symbol = client.stocks(market=consts.MARKET_SH)
 - offset: 用户要请求的 K 线数目，最大值为 800
 
 > frequency -> K线种类
-> 0 => 5分钟K线             => 5m
-> 1 => 15分钟K线            => 15m
-> 2 => 30分钟K线            => 30m
-> 3 => 小时K线              => 1h
-> 4 => 日K线 (小数点x100)    => days
-> 5 => 周K线                => week
-> 6 => 月K线                => mon
-> 7 => 1分钟K线(好像一样)     => 1m
-> 8 => 1分钟K线(好像一样)     => 1m
-> 9 => 日K线                => day
-> 10 => 季K线               => 3mon
-> 11 => 年K线               => year
+> 0 => 5分钟K线 => 5m
+> 1 => 15分钟K线 => 15m
+> 2 => 30分钟K线 => 30m
+> 3 => 小时K线 => 1h
+> 4 => 日K线 (小数点x100) => days
+> 5 => 周K线 => week
+> 6 => 月K线 => mon
+> 7 => 1分钟K线(好像一样) => 1m
+> 8 => 1分钟K线(好像一样) => 1m
+> 9 => 日K线 => day
+> 10 => 季K线 => 3mon
+> 11 => 年K线 => year
 
 使用说明：
 
@@ -323,4 +325,189 @@ client.ohlc(symbol="600300", begin="2017-07-03", end="2017-07-10", adjust='qfq')
 
 # 后复权
 client.ohlc(symbol="600300", begin="2017-07-03", end="2017-07-10", adjust='hfq')
+```
+
+## 15. 板块列表
+
+获取行业、概念、地域等板块分类
+
+**参数说明:**
+
+- board_type: 板块类型。`industry` 行业, `concept` 概念, `style` 风格, `region` 地区, `all` 全部
+- count: 获取数量，默认 10000
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+
+# 获取行业板块
+client.board_list(board_type='industry')
+
+# 获取概念板块
+client.board_list(board_type='concept')
+```
+
+## 16. 板块成分股行情
+
+获取指定板块的成分股行情数据
+
+**参数说明:**
+
+- board_symbol: 板块代码，如 `880001`
+- count: 获取数量，默认 20
+- sort_type: 排序字段，默认按涨跌幅
+- sort_order: 排序方向，默认降序
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.board_quotes('880001', count=20)
+```
+
+## 17. 个股资金流向
+
+**参数说明:**
+
+- symbol: 股票代码
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.capital_flow('000001')
+```
+
+## 18. 排行榜
+
+获取涨停、跌停、振幅、涨速等排行榜
+
+**参数说明:**
+
+- category: 排行类别（opentdx CATEGORY 枚举），默认全部A股
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.stock_ranking()
+```
+
+## 19. 排序筛选股票列表
+
+**参数说明:**
+
+- category: 股票类别，默认全部A股
+- sort_type: 排序字段，默认涨跌幅
+- count: 获取数量，默认 80
+- filter_types: 筛选类型列表
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.stock_list_sorted(count=80)
+```
+
+## 20. 集合竞价
+
+**参数说明:**
+
+- symbol: 股票代码
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.auction('000001')
+```
+
+## 21. 异动预警
+
+**参数说明:**
+
+- market: 市场代码，0 深市, 1 沪市
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.unusual(market=0)
+```
+
+## 22. 成交分布
+
+**参数说明:**
+
+- symbol: 股票代码
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.vol_profile('000001')
+```
+
+## 23. 指数行情
+
+批量获取指数行情
+
+**参数说明:**
+
+- symbol_list: 指数代码列表，如 `['000001', '399001']`
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.index_info(['000001', '399001'])
+```
+
+## 24. 全市场股票列表
+
+一次获取沪深两市所有股票
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.stock_all()
+```
+
+## 25. 板块文件数据
+
+获取证券板块文件数据
+
+**参数说明:**
+
+- tofile: 板块文件名，如 `block.dat`
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.block(tofile='block_zs.dat')
 ```

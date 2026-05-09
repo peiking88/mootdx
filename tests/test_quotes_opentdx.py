@@ -22,18 +22,6 @@ def make_std_mock():
     return q, mock_adapter
 
 
-class TestRequireOpentdx:
-    def test_opentdx_backend_ok(self):
-        q, _ = make_std_mock()
-        q._require_opentdx()
-
-    def test_tdxpy_backend_raises(self):
-        q, adapter = make_std_mock()
-        adapter._backend = 'tdxpy'
-        with pytest.raises(NotImplementedError, match='opentdx'):
-            q._require_opentdx()
-
-
 class TestOpentdxMethods:
     def test_stock_ranking_ok(self):
         q, adapter = make_std_mock()

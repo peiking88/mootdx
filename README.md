@@ -1,5 +1,4 @@
-通达信数据读取接口
-==================
+# 通达信数据读取接口
 
 [![image](https://badge.fury.io/py/mootdx.svg)](http://badge.fury.io/py/mootdx)
 [![image](https://img.shields.io/travis/bopo/mootdx.svg)](https://travis-ci.org/mootdx/mootdx)
@@ -10,31 +9,29 @@
 
 **郑重声明: 本项目只作学习交流, 不得用于任何商业目的.**
 
--   开源协议: MIT license
--   在线文档: <https://www.mootdx.com>
--   国内镜像: <https://gitee.com/ibopo/mootdx>
--   项目仓库: <https://github.com/mootdx/mootdx>
--   问题交流: <https://github.com/mootdx/mootdx/issues>
+- 开源协议: MIT license
+- 在线文档: <https://www.mootdx.com>
+- 国内镜像: <https://gitee.com/ibopo/mootdx>
+- 项目仓库: <https://github.com/mootdx/mootdx>
+- 问题交流: <https://github.com/mootdx/mootdx/issues>
 
-版本更新(倒序)
---------------
+## 版本更新(倒序)
 
 - 0.11.7: 新增行情适配器层，支持 opentdx 新协议；更新全部行情服务器地址；新增 HF 高级行情支持；修复 pandas 兼容性问题；测试覆盖率提升至 80%
 
 版本更新日志: <https://mootdx.readthedocs.io/zh_CN/latest/history/>
 
-运行环境
---------
+## 运行环境
 
--   操作系统: Windows / MacOS / Linux 都可以运行.
--   Python: 3.8 以及以上版本.
+- 操作系统: Windows / MacOS / Linux 都可以运行.
+- Python: 3.8 以及以上版本.
 
-安装方法
---------
+## 安装方法
 
 > 新手建议使用 `pip install -U 'mootdx[all]'` 安装
 
 ### PIP 安装方法
+
 ```shell
 
 # 包含核心依赖安装
@@ -50,13 +47,12 @@ pip install 'mootdx[all]'
 ### 升级安装
 
 ```shell
-pip install -U tdxpy mootdx
+pip install -U opentdx mootdx
 ```
 
 > 如果不清楚各种依赖关系就用这个命令 `pip install -U 'mootdx[all]'`
 
-使用说明
---------
+## 使用说明
 
 > 以下只列举一些例子, 详细说明请查看在线文档: <https://www.mootdx.com>
 
@@ -113,23 +109,21 @@ Affair.fetch(downdir='tmp', filename='gpcw19960630.zip')
 Affair.parse(downdir='tmp')
 ```
 
-加微信交流
-----------
+## 加微信交流
 
 ![](docs/img/IMG_2851.JPG)
 
-常见问题
---------
+## 常见问题
 
 M1 mac 系统PyMiniRacer不能使用，访问:
 <https://github.com/sqreen/PyMiniRacer/issues/143>
-
 
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/mootdx/mootdx.svg)](https://starchart.cc/mootdx/mootdx)
 
 ### 2026-05-04 10:51:50
+
 ```
  .gitignore                       |   3 +
  CLAUDE.md                        |  29 +++
@@ -149,6 +143,7 @@ M1 mac 系统PyMiniRacer不能使用，访问:
 ```
 
 ### 2026-05-04 18:08:00
+
 ```
  README.md                    |   2 +-
  summary.md                   |  32 ++++--

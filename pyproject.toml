@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mootdx"
-version = "0.12.0"
+version = "0.13.0"
 description = "通达信数据读取接口."
 authors = ["bopo <ibopo@126.com>"]
 readme = "README.md"
@@ -30,7 +30,8 @@ mootdx = "mootdx.__main__:entry"
 python = "^3.8"
 httpx = "^0.25.0"
 tenacity = "^8.1.0"
-tdxpy = "^0.2.5"
+opentdx = "*"
+
 tqdm = "*"
 prettytable = "^3.5.0"
 click = "^8.1.3"

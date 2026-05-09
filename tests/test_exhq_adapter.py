@@ -12,8 +12,6 @@ class TestExHqAdapterInit:
         assert adapter._connected is False
         assert adapter._ip is None
         assert adapter._port is None
-        assert hasattr(adapter, '_backend')
-        assert adapter._backend in ('opentdx', 'tdxpy')
 
 
 class TestParseDate:

@@ -9,26 +9,6 @@ from mootdx.hq_adapter import StdHqAdapter
 
 
 class TestStdHqAdapterInit:
-    def test_init_tdxpy_fallback(self):
-        """当 opentdx 不可用时应回退到 tdxpy"""
-        import mootdx.hq_adapter as mod
-
-        fake_api = mock.MagicMock()
-        fake_api.return_value = fake_api
-
-        with mock.patch.dict('sys.modules', {'opentdx.client.quotationClient': None}):
-            with mock.patch.dict('sys.modules', {'tdxpy.hq': mock.MagicMock(TdxHq_API=fake_api)}):
-                with mock.patch.object(mod, 'logger', mock.MagicMock()):
-                    # Force reimport of the module to pick up new sys.modules
-                    # Instead, create the adapter with the right state
-                    adapter = StdHqAdapter.__new__(StdHqAdapter)
-                    adapter._connected = False
-                    adapter._ip = None
-                    adapter._port = None
-                    adapter._client = fake_api
-                    adapter._backend = 'tdxpy'
-                    assert adapter._backend == 'tdxpy'
-
     def test_need_setup_false(self):
         adapter = StdHqAdapter()
         assert adapter.need_setup is False
@@ -111,14 +91,13 @@ class TestContextManager:
             adapter.__exit__(None, None, None)
             mock_close.assert_called_once()
 
-    def test_close_with_tdxpy(self):
+    def test_close_disconnects_client(self):
         adapter = StdHqAdapter()
-        mock_tdx_client = mock.MagicMock()
-        adapter._client = mock_tdx_client
-        adapter._backend = 'tdxpy'
+        mock_client = mock.MagicMock()
+        adapter._client = mock_client
         adapter._connected = True
         adapter.close()
-        mock_tdx_client.close.assert_called_once()
+        mock_client.disconnect.assert_called_once()
         assert adapter._connected is False
 
     def test_close_with_opentdx(self):
@@ -134,47 +113,25 @@ class TestContextManager:
 
 class TestConvertMarket:
     def test_convert_market_normal(self):
+        from opentdx import MARKET
         adapter = StdHqAdapter()
-        adapter._backend = 'opentdx'
-        mock_market = mock.MagicMock()
-        mock_market.return_value = 42
-
-        with mock.patch.dict('sys.modules', {'opentdx': mock.MagicMock(MARKET=mock_market)}):
-            # _convert_market does `from opentdx import MARKET`
-            # Need opentdx to be importable
-            result = adapter._convert_market(1)
-            assert result == 42
+        assert adapter._convert_market(0) == MARKET.SZ
+        assert adapter._convert_market(1) == MARKET.SH
 
     def test_convert_market_fallback(self):
+        from opentdx import MARKET
         adapter = StdHqAdapter()
-        adapter._backend = 'opentdx'
-        mock_market = mock.MagicMock()
-        mock_market.SH = 1
-        mock_market.side_effect = ValueError
-
-        with mock.patch.dict('sys.modules', {'opentdx': mock.MagicMock(MARKET=mock_market)}):
-            result = adapter._convert_market(99)
-            assert result == 1
+        assert adapter._convert_market(99) == MARKET.SH
 
 
 class TestConvertPeriod:
     def test_convert_period_normal(self):
+        from opentdx import PERIOD
         adapter = StdHqAdapter()
-        adapter._backend = 'opentdx'
-        mock_period = mock.MagicMock()
-        mock_period.return_value = 99
-
-        with mock.patch.dict('sys.modules', {'opentdx': mock.MagicMock(PERIOD=mock_period)}):
-            result = adapter._convert_period(9)
-            assert result == 99
+        assert adapter._convert_period(9) == PERIOD.DAYS
+        assert adapter._convert_period(4) == PERIOD.DAILY
 
     def test_convert_period_fallback(self):
+        from opentdx import PERIOD
         adapter = StdHqAdapter()
-        adapter._backend = 'opentdx'
-        mock_period = mock.MagicMock()
-        mock_period.DAILY = 9
-        mock_period.side_effect = ValueError
-
-        with mock.patch.dict('sys.modules', {'opentdx': mock.MagicMock(PERIOD=mock_period)}):
-            result = adapter._convert_period(-1)
-            assert result == 9
+        assert adapter._convert_period(-1) == PERIOD.DAILY
