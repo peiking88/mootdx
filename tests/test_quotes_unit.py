@@ -135,12 +135,36 @@ class TestClampOffset:
 
 
 class TestMarketFromSymbol:
-    def test_sz_market(self):
+    def test_sz_main_board(self):
         from mootdx.consts import MARKET_SZ
         assert _market_from_symbol('000001') == MARKET_SZ
+        assert _market_from_symbol('002415') == MARKET_SZ
 
-    def test_sh_market(self):
+    def test_sz_gem(self):
+        from mootdx.consts import MARKET_SZ
+        assert _market_from_symbol('300750') == MARKET_SZ
+        assert _market_from_symbol('301000') == MARKET_SZ
+
+    def test_sz_index(self):
+        from mootdx.consts import MARKET_SZ
+        assert _market_from_symbol('399001') == MARKET_SZ
+        assert _market_from_symbol('399005') == MARKET_SZ
+        assert _market_from_symbol('399006') == MARKET_SZ
+
+    def test_sh_main_board(self):
         from mootdx.consts import MARKET_SH
         assert _market_from_symbol('600000') == MARKET_SH
+        assert _market_from_symbol('600519') == MARKET_SH
+        assert _market_from_symbol('601318') == MARKET_SH
+
+    def test_sh_star_market(self):
+        from mootdx.consts import MARKET_SH
         assert _market_from_symbol('688001') == MARKET_SH
-        assert _market_from_symbol('300750') == MARKET_SH
+        assert _market_from_symbol('689009') == MARKET_SH
+
+    def test_sh_index(self):
+        """上证指数代码（000xxx，注意与深市股票代码重叠，market 仅用于路由提示）。"""
+        from mootdx.consts import MARKET_SH
+        # 000001 的 [:2] = '00' 归属 SZ，但上证指数查询允许跨市场
+        # 此处验证非 00/30/39/88/99 前缀返回 SH
+        assert _market_from_symbol('510050') == MARKET_SH
