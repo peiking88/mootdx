@@ -232,3 +232,17 @@ M1 mac 系统PyMiniRacer不能使用，访问:
  mootdx/utils/timer.py        |   0
  mootdx/version.py            |   0
 ```
+
+### 2026-05-09 18:57:03
+```
+ mootdx/__init__.py        |   2 +-
+ mootdx/config.py          |  14 +------
+ mootdx/quotes.py          |  13 ++++--
+ mootdx/server.py          |   4 --
+ mootdx/utils/__init__.py  | 105 ----------------------------------------------
+ summary.md                |  40 ++++--------------
+ tests/test_config.py      |   8 +---
+ tests/test_server_more.py |   6 +--
+ tests/test_server_unit.py |   7 +---
+ 9 files changed, 22 insertions(+), 177 deletions(-)
+```
