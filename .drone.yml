@@ -20,7 +20,7 @@ steps:
     when:
       ref:
         include:
-        - refs/tags/**
+          - refs/tags/**
 
 #  - name: sync
 #    image: mootdx:ci

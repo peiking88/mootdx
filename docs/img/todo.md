@@ -4,7 +4,7 @@
 - [x] [功能] 日志等级调整为自行可配置(之前有反馈说日志等级太低, 太多无用日志，影响性能) 构造函数调整
 - [x] [功能] 调整K线数据数据频次参数(frequency)的赋值方式, 原数字方式改成字符, 例如(原15分钟线值`1`改为`15m`)
 - [x] [功能] 增加服务器IP功能, 构造函数里添加 `server`参数
-例如：`client = Quotes.factory(market='std', server=('127.0.0.0',7727), verbose=0, quiet=True)`
+      例如：`client = Quotes.factory(market='std', server=('127.0.0.0',7727), verbose=0, quiet=True)`
 - [x] [功能] 日志过滤的调整
 - [x] [恢复] 恢复了holiday2
 - [x] [调整] 财务数据的表头转为中文, 使用时更加直观
@@ -27,6 +27,7 @@
 - [ ] pandas 解析时间问题
 
 以下，网友提供的复权代码
+
 ```python
 fenhong = xdxr['fenhong']
 peigu = xdxr['peigu']
@@ -47,6 +48,7 @@ for i in range(0, len(xdxr)):
 ```
 
 # 最新开发计划
+
 - 移除非必要依赖
     - [x] pyproject.toml
     - [x] 缺少依赖增加警告提示
@@ -58,15 +60,18 @@ for i in range(0, len(xdxr)):
 - [x] 调整 changlog 凌乱问题
 
 # 下一个版本
+
 - [x] 读取通达信本地数据复权问题
 - 增加缓存加速二次使用 (手动实现一个 cache)
 
 # 下一个版本
+
 - 修正场内基金价格大10倍问题 【tdxpy】
 - 修正离线可转债数价格10倍问题 【tdxpy】
 - 修正后复权问题
 
 # 下一个版本
+
 - 历史行情按时间进行过滤
 - 连接异常自动删除配置文件，或者警告提示
 - 读取不到北交所本地数据

@@ -50,8 +50,8 @@ def quotes(symbol, action, market, output):
         feed = getattr(client, 'bars')(symbol=symbol, frequency=frequency)
         to_file(feed, output) if output else None
         click.echo(feed)
-    except Exception as e:
-        raise e
+    except Exception:
+        raise
 
 
 @entry.command(help='读取股票本地行情数据.')
@@ -70,8 +70,8 @@ def reader(symbol, action, market, tdxdir, output):
         feed = getattr(client, action)(symbol=symbol)
         to_file(feed, output) if output else None
         click.echo(feed)
-    except Exception as e:
-        raise e
+    except Exception:
+        raise
 
 
 @entry.command(help='测试行情服务器.', name='bestip')
@@ -183,8 +183,8 @@ def bundle(symbol, action, market, output, extension):
             feed = getattr(client, 'bars')(symbol=code, frequency=frequency)
             output and to_file(feed, os.path.join(output, f'{code}.{extension}'))
             click.echo('下载完成 {}'.format(code))
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
 
     click.echo(f'[√] 下载文件到 "{os.path.realpath(output)}"')
 

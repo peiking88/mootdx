@@ -4,7 +4,7 @@
 - [x] [功能] 日志等级调整为自行可配置(之前有反馈说日志等级太低, 太多无用日志，影响性能) 构造函数调整
 - [x] [功能] 调整K线数据数据频次参数(frequency)的赋值方式, 原数字方式改成字符, 例如(原15分钟线值`1`改为`15m`)
 - [x] [功能] 增加服务器IP功能, 构造函数里添加 `server`参数
-例如：`client = Quotes.factory(market='std', server=('127.0.0.0',7727), verbose=0, quiet=True)`
+      例如：`client = Quotes.factory(market='std', server=('127.0.0.0',7727), verbose=0, quiet=True)`
 - [x] [功能] 日志过滤的调整
 - [x] [恢复] 恢复了holiday2
 - [x] [调整] 财务数据的表头转为中文, 使用时更加直观
@@ -27,6 +27,7 @@
 - [ ] pandas 解析时间问题
 
 以下，网友提供的复权代码
+
 ```python
 fenhong = xdxr['fenhong']
 peigu = xdxr['peigu']

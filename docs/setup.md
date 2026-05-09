@@ -30,4 +30,3 @@ pip install -U mootdx
 ```shell
 pip install git+https://github.com/mootdx/mootdx.git
 ```
-

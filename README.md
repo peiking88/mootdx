@@ -161,3 +161,55 @@ M1 mac 系统PyMiniRacer不能使用，访问:
  tests/test_server_unit.py    |  66 +++++++++++++
  tests/test_tdxfinder.py      | 167 ++++++++++++++++++++++++++++++++
 ```
+
+### 2026-05-09 09:06:08
+```
+ README.md                    |  41 ++--
+ docs/api/quote1.md           | 235 +++++++++++++++++--
+ docs/api/quote2.md           |   2 +-
+ docs/index.md                |   4 +-
+ mootdx/__init__.py           |   2 +-
+ mootdx/contrib/compat.py     |  95 +-------
+ mootdx/exhq_adapter.py       | 352 +++++++++++++---------------
+ mootdx/hq_adapter.py         | 534 +++++++++++++++++++------------------------
+ mootdx/parse.py              |   2 +-
+ mootdx/reader.py             |   6 +-
+ mootdx/tools/customize.py    |   2 +-
+ pyproject.toml               |   5 +-
+ requirements.txt             |   2 +-
+ summary.md                   |  41 +++-
+ tests/test_adapter_tdxpy.py  | 239 ++++++++++++-------
+```
+
+### 2026-05-09 12:19:42
+```
+ {sample => scripts/examples}/basic_adjust.py      | 0
+ {sample => scripts/examples}/basic_affairs.py     | 0
+ {sample => scripts/examples}/basic_quotes.py      | 0
+ {sample => scripts/examples}/basic_reader.py      | 0
+ {sample => scripts/examples}/fq.py                | 0
+ {sample => scripts/examples}/fuquan.py            | 0
+ {sample => scripts/examples}/lru_cache.py         | 0
+ {sample => scripts/examples}/parse_affairs_all.py | 0
+ {sample => scripts/examples}/verify_server.py     | 0
+ 9 files changed, 0 insertions(+), 0 deletions(-)
+```
+
+### 2026-05-09 12:21:55
+```
+ .coveragerc                                       |   0
+ .drone.yml                                        |   2 +-
+ .github/workflows/django.yml                      |   0
+ .pre-commit-config.yaml                           |  38 +-
+ .readthedocs.yaml                                 |   4 +-
+ CLAUDE.md                                         |   9 +-
+ Dockerfile                                        |   0
+ Makefile                                          |   3 -
+ README.md                                         |  33 ++
+ docs/api/extras.md                                |   2 +-
+ docs/faq/py_mini_racer.md                         |   0
+ docs/history.md                                   | 140 +++---
+ docs/img/todo.md                                  |   7 +-
+ docs/setup.md                                     |   1 -
+ docs/todo.md                                      |   3 +-
+```

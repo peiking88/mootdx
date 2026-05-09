@@ -2,7 +2,14 @@
 
 ## Git 认证
 
-使用 `GIT_USERNAME` + `GIT_TOKEN` 环境变量进行认证，通过 git credential helper 自动读取。
+使用 `GIT_USERNAME` + `GIT_PASSWORD` 环境变量进行认证。
+推送时拼接认证 URL，完成后恢复无 token 地址：
+
+```bash
+git remote set-url origin "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/peiking88/mootdx.git"
+git push origin master
+git remote set-url origin "https://github.com/peiking88/mootdx.git"
+```
 
 - 远程仓库：`https://github.com/peiking88/mootdx.git`
 - 镜像仓库：`https://kkgithub.com/peiking88/mootdx.git`

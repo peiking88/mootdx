@@ -90,7 +90,7 @@ tdx2csv.batch(src='c:/tdx/export', dst='c:/tdx/output')
 参数说明:
 
 - date: 日期, 字符格式
-- format_: 日期格式 默认: %Y-%m-%d (e: 2010-01-01)
+- format\_: 日期格式 默认: %Y-%m-%d (e: 2010-01-01)
 - country: 国家, 默认: 中国
 
 返回值：

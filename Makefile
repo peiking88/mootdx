@@ -88,9 +88,6 @@ cleanup: ## 清理开发环境
 	@poetry env remove `poetry env list | grep '(Activated)' | cut -d ' ' -f1 | sed 's/-py/ /g' | awk '{print $$NF}'`
 
 prepare: clean ## 准备开发环境
-	git config user.email ibopo@126.com
-	git config pull.rebase false
-	git config user.name bopo
 	poetry install --sync
 
 pull:
