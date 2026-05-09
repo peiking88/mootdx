@@ -28,6 +28,16 @@ git remote set-url origin "https://github.com/peiking88/mootdx.git"
 
 所有对 `https://bgithub.xyz` 的引用统一替换为 `https://github.com`。
 
+## 依赖安装
+
+本项目依赖 `opentdx`，需从本地源码以可编辑模式安装：
+
+```bash
+pip install -e ~/peiking88/opentdx
+```
+
+运行测试前确保已激活虚拟环境并完成上述安装。
+
 ## 语言规范
 
 - 工作过程使用中文
