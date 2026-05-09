@@ -246,3 +246,22 @@ M1 mac 系统PyMiniRacer不能使用，访问:
  tests/test_server_unit.py |   7 +---
  9 files changed, 22 insertions(+), 177 deletions(-)
 ```
+
+### 2026-05-10 01:20:00
+```
+ mootdx/__init__.py                                 |   2 +-
+ mootdx/__main__.py                                 |   3 +-
+ mootdx/logger.py                                   |  24 +++-
+ mootdx/quotes.py                                   |  41 +++---
+ mootdx/server.py                                   |   5 +-
+ mootdx/tools/customize.py                          |   4 +
+ mootdx/tools/reversion.py                          |   4 +-
+ mootdx/utils/factor.py                             |  85 ++++++-----
+ pyproject.toml                                     |   2 +-
+ summary.md                                         |  46 ++++--
+ tests/conftest.py                                  |  17 +++
+ tests/quotes/test_quotes_base.py                   |   4 +
+ tests/quotes/test_quotes_ext.py                    |   8 +-
+ tests/quotes/test_quotes_std.py                    |  16 ++-
+ ...st_adapter_tdxpy.py => test_adapter_opentdx.py} |   2 +-
+```
