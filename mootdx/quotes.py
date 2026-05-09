@@ -444,7 +444,8 @@ class StdQuotes(BaseQuotes):
 
         market = get_stock_market(symbol)
         try:
-            raw_events = self.client._client.call(XDXR(int(market), symbol))
+            from opentdx.const import MARKET
+            raw_events = self.client._client.call(XDXR(MARKET(market), symbol))
         except Exception as e:
             logger.warning(f"TDX XDXR fetch failed for {symbol}: {e}")
             return pd.DataFrame(columns=['date', 'factor'])
