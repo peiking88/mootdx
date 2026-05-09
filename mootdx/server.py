@@ -5,9 +5,9 @@ import socket
 import time
 from functools import partial
 
-from mootdx.consts import CONFIG
 from mootdx.consts import EX_HOSTS
 from mootdx.consts import GP_HOSTS
+from mootdx.consts import HF_HOSTS
 from mootdx.consts import HQ_HOSTS
 from mootdx.exhq_adapter import ExHqAdapter
 from mootdx.hq_adapter import StdHqAdapter
@@ -177,7 +177,11 @@ def check_server(console=False, limit=5, sync=False) -> None:
 
 def bestip(console=False, limit=5, sync=False) -> None:
     config_ = get_config_path('config.json')
-    default = dict(CONFIG)
+    default = {
+        'SERVER': {'HQ': HQ_HOSTS, 'EX': EX_HOSTS, 'GP': GP_HOSTS, 'HF': HF_HOSTS},
+        'BESTIP': {'HQ': '', 'EX': '', 'GP': '', 'HF': ''},
+        'TDXDIR': 'C:/new_tdx',
+    }
 
     logger.info('[-] 选择最快的服务器...')
     logger.debug(f'sync => {sync}')

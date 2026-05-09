@@ -188,7 +188,7 @@ def _blocknew(tdxdir: str = None, name: str = None, symbol: list = None, blk_fil
         if name in names:
             # todo symbol 不空则合并, 空则删除
             logger.error('自定义板块名称重复.')
-            raise Exception('自定义板块名称重复.')
+            raise ValueError('自定义板块名称重复.')
 
     # 写 blk 文件
     with open(f'{vipdoc}/{blk_file}.blk', 'w') as fp:

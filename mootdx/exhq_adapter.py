@@ -2,14 +2,14 @@ import datetime
 from collections import OrderedDict
 
 from opentdx import EX_MARKET
-from opentdx import PERIOD
 from opentdx import parse_tdx_date
 from opentdx.client import exQuotationClient
 
+from mootdx.hq_adapter import StdHqAdapter
 from mootdx.logger import logger
 
 
-class ExHqAdapter:
+class ExHqAdapter(StdHqAdapter):
     """opentdx 扩展行情适配器"""
 
     def __init__(self, **kwargs):
@@ -40,27 +40,11 @@ class ExHqAdapter:
         self._connected = True
         return self
 
-    def close(self):
-        self._client.disconnect()
-        self._connected = False
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self.close()
-
     def _convert_market(self, market):
         try:
             return EX_MARKET(market)
         except ValueError:
             return EX_MARKET.CFFEX_FUTURES
-
-    def _convert_period(self, category):
-        try:
-            return PERIOD(category)
-        except ValueError:
-            return PERIOD.DAILY
 
     def get_markets(self):
         result = self._client.get_category_list()

@@ -35,8 +35,6 @@ MAX_TRANSACTION_COUNT = 2000
 # K线数据最多800条
 MAX_KLINE_COUNT = 800
 
-FREQUENCY = ['5m', '15m', '30m', '1h', 'day', 'week', 'mon', 'ex_1m', '1m', 'dk', '3mon', 'year']
-
 # 板块相关参数
 BLOCK_SZ = 'block_zs.dat'
 BLOCK_FG = 'block_fg.dat'
@@ -111,13 +109,6 @@ HF_HOSTS = [
     ('上海双线高级行情1', '121.37.183.82', 7709),
     ('深圳双线高级行情1', '110.41.174.169', 7709),
 ]
-
-CONFIG = {
-    'SERVER': {'HQ': HQ_HOSTS, 'EX': EX_HOSTS, 'GP': GP_HOSTS, 'HF': HF_HOSTS},
-    'BESTIP': {'HQ': '', 'EX': '', 'GP': '', 'HF': ''},
-    'TDXDIR': 'C:/new_tdx',
-}
-
 
 def return_last_value(retry_state):
     """return the result of the last call attempt"""

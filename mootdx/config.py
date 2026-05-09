@@ -4,6 +4,7 @@ from pathlib import Path
 
 from mootdx.consts import EX_HOSTS
 from mootdx.consts import GP_HOSTS
+from mootdx.consts import HF_HOSTS
 from mootdx.consts import HQ_HOSTS
 from mootdx.logger import logger
 from mootdx.server import bestip
@@ -12,8 +13,8 @@ from mootdx.utils import get_config_path
 __all__ = ['set', 'get', 'copy', 'update', 'settings']
 
 settings = {
-    'SERVER': {'HQ': HQ_HOSTS, 'EX': EX_HOSTS, 'GP': GP_HOSTS},
-    'BESTIP': {'HQ': '', 'EX': '', 'GP': ''},
+    'SERVER': {'HQ': HQ_HOSTS, 'EX': EX_HOSTS, 'GP': GP_HOSTS, 'HF': HF_HOSTS},
+    'BESTIP': {'HQ': '', 'EX': '', 'GP': '', 'HF': ''},
     'TDXDIR': 'C:/new_tdx',
 }
 

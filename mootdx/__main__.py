@@ -17,6 +17,16 @@ except (ImportError, ModuleNotFoundError):
     logging.warning('!!! 缺少命令行依赖, 请使用次命令进行安装: pip install "mootdx[cli]"')
     exit(-1)
 
+ACTION_FREQUENCY = {'daily': 9, 'minute': 8, 'fzline': 0}
+
+
+def _setup_verbose(logger, verbose):
+    if verbose:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
+        logger.setLevel(logging.DEBUG)
+
 
 @click.group()
 @click.version_option(__version__, '-V', '--version', prog_name='Mootdx', message='%(prog)s: v%(version)s')
@@ -36,22 +46,11 @@ def quotes(symbol, action, market, output):
 
     client = Quotes.factory(market=market, multithread=True)
 
-    try:
-        action = 'bars' if 'daily' else action
-        if action == 'daily':
-            frequency = 9
-        elif action == 'minute':
-            frequency = 8
-        elif action == 'fzline':
-            frequency = 0
-        else:
-            frequency = 9
+    frequency = ACTION_FREQUENCY.get(action, 9)
 
-        feed = getattr(client, 'bars')(symbol=symbol, frequency=frequency)
-        to_file(feed, output) if output else None
-        click.echo(feed)
-    except Exception:
-        raise
+    feed = getattr(client, 'bars')(symbol=symbol, frequency=frequency)
+    to_file(feed, output) if output else None
+    click.echo(feed)
 
 
 @entry.command(help='读取股票本地行情数据.')
@@ -66,12 +65,9 @@ def reader(symbol, action, market, tdxdir, output):
 
     client = Reader.factory(market=market, tdxdir=tdxdir)
 
-    try:
-        feed = getattr(client, action)(symbol=symbol)
-        to_file(feed, output) if output else None
-        click.echo(feed)
-    except Exception:
-        raise
+    feed = getattr(client, action)(symbol=symbol)
+    to_file(feed, output) if output else None
+    click.echo(feed)
 
 
 @entry.command(help='测试行情服务器.', name='bestip')
@@ -81,12 +77,7 @@ def reader(symbol, action, market, tdxdir, output):
 def server(limit, verbose):
     from mootdx.server import bestip
 
-    if verbose:
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-
-        logger.addHandler(ch)
-        logger.setLevel(logging.DEBUG)
+    _setup_verbose(logger, verbose)
 
     bestip(limit=limit, console=True, sync=False)
 
@@ -106,12 +97,7 @@ def server(limit, verbose):
 def affair(parse, fetch, downdir, output, downall, verbose, listfile):
     from mootdx.affair import Affair
 
-    if verbose:
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-
-        logger.addHandler(ch)
-        logger.setLevel(logging.DEBUG)
+    _setup_verbose(logger, verbose)
 
     files = Affair.files()
 
@@ -170,21 +156,11 @@ def bundle(symbol, action, market, output, extension):
     symbol = symbol.replace('，', ',').strip(',').split(',')
 
     for code in symbol:
-        try:
-            if action == 'daily':
-                frequency = 9
-            elif action == 'minute':
-                frequency = 8
-            elif action == 'fzline':
-                frequency = 0
-            else:
-                frequency = 9
+        frequency = ACTION_FREQUENCY.get(action, 9)
 
-            feed = getattr(client, 'bars')(symbol=code, frequency=frequency)
-            output and to_file(feed, os.path.join(output, f'{code}.{extension}'))
-            click.echo('下载完成 {}'.format(code))
-        except Exception:
-            raise
+        feed = getattr(client, 'bars')(symbol=code, frequency=frequency)
+        output and to_file(feed, os.path.join(output, f'{code}.{extension}'))
+        click.echo('下载完成 {}'.format(code))
 
     click.echo(f'[√] 下载文件到 "{os.path.realpath(output)}"')
 

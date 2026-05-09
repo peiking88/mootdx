@@ -24,7 +24,7 @@ class MootdxValidationException(Exception):
         pass
 
 
-class MootdxModuleNotFoundError(Exception):
+class MootdxModuleNotFoundError(ImportError):
     def __init__(self, *args, **kwargs):
         pass
 

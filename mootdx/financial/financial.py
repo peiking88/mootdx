@@ -106,7 +106,7 @@ class Financial(BaseFinancial):
         logger.debug(f'{filename}: start download...')
 
         if not filename:
-            raise Exception('Param filename is not set')
+            raise ValueError('Param filename is not set')
 
         api = StdHqAdapter()
         api.need_setup = False
@@ -154,7 +154,7 @@ class Financial(BaseFinancial):
                     dat_file = open(Path(tmpdir, str(_file)), 'rb')
 
             if dat_file is None:
-                raise Exception('no dat file found in zip archive')
+                raise FileNotFoundError('no dat file found in zip archive')
 
         elif download_file.name.endswith('.dat'):
             dat_file = download_file

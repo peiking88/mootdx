@@ -39,7 +39,7 @@ class ReaderBase(ABC):
         """
 
         if not Path(tdxdir).is_dir():
-            raise Exception('tdxdir 目录不存在')
+            raise FileNotFoundError('tdxdir 目录不存在')
 
         self.tdxdir = tdxdir
 
