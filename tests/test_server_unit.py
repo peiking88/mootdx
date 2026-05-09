@@ -2,7 +2,7 @@ import socket
 import time
 from unittest import mock
 
-from mootdx.server import bestip, check_server, connect, hosts
+from mootdx.server import bestip, connect, hosts
 
 
 class TestServerHosts:
@@ -59,8 +59,3 @@ class TestConnect:
             assert result['time'] is None
 
 
-class TestCheckServer:
-    def test_check_server_calls_bestip(self):
-        with mock.patch('mootdx.server.bestip') as mock_bestip:
-            check_server(console=False, limit=10, sync=True)
-            mock_bestip.assert_called_once_with(console=False, limit=10, sync=True)

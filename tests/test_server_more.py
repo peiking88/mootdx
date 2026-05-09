@@ -7,7 +7,7 @@ from unittest import mock
 import pytest
 
 from mootdx import server as server_module
-from mootdx.server import bestip, check_server, connect, server, hosts, results
+from mootdx.server import bestip, connect, server, hosts, results
 
 
 class TestServerFunction:
@@ -64,7 +64,3 @@ class TestBestip:
             with mock.patch('mootdx.server.get_config_path', return_value=str(config_path)):
                 bestip(console=False, limit=5, sync=True)
 
-    def test_check_server_delegates(self):
-        with mock.patch('mootdx.server.bestip') as mock_bestip:
-            check_server(console=True, limit=3, sync=False)
-            mock_bestip.assert_called_once_with(console=True, limit=3, sync=False)

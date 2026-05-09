@@ -171,10 +171,6 @@ def server(index=None, limit=5, console=False, sync=True):
     return [(item['addr'], int(item['port'])) for item in servers]
 
 
-def check_server(console=False, limit=5, sync=False) -> None:
-    return bestip(console=console, limit=limit, sync=sync)
-
-
 def bestip(console=False, limit=5, sync=False) -> None:
     config_ = get_config_path('config.json')
     default = {

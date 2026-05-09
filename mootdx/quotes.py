@@ -17,7 +17,7 @@ from mootdx.exceptions import MootdxValidationException
 from mootdx.exhq_adapter import ExHqAdapter
 from mootdx.hq_adapter import StdHqAdapter
 from mootdx.logger import logger
-from mootdx.server import check_server
+from mootdx.server import bestip as check_bestip
 from mootdx.utils import get_frequency
 from mootdx.utils import get_stock_market
 from mootdx.utils import get_stock_markets
@@ -72,7 +72,7 @@ class BaseQuotes(object):
         self.server = valid_server(server)
 
         logger.debug(f'bestip => {bestip}')
-        bestip and check_server(sync=True)
+        bestip and check_bestip(sync=True)
 
         self.timeout = timeout or 15
         logger.debug(f'timeout => {self.timeout}')
@@ -137,6 +137,11 @@ def _check_market(market):
     """验证市场代码为沪深市场"""
     if market not in [0, 1]:
         raise MootdxValidationException('市场代码错误, 目前只支持沪深市场')
+
+
+# 非交易日补偿系数：全年约1/3天数非交易，用于日期差→交易天数粗略换算
+_OFFSET_FACTOR_NEAR = 2.8   # 近期日期补偿
+_OFFSET_FACTOR_FAR = 3.5    # 远期日期补偿
 
 
 def _clamp_offset(offset, limit=800):
@@ -539,8 +544,8 @@ class StdQuotes(BaseQuotes):
         last = (abs(last), 0)[last >= 0]
 
         # 去除节假日
-        first -= int(first / 2.8)  # 非交易日大概是全年的1/3
-        last -= int(last / 3.5)  # 非交易日大概是全年的1/3
+        first -= int(first / _OFFSET_FACTOR_NEAR)
+        last -= int(last / _OFFSET_FACTOR_FAR)
 
         temp = []
         market = get_stock_market(code)

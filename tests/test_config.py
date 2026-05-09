@@ -34,12 +34,6 @@ class TestConfigSetGet:
         result = config.get('DEEP.a.b.c')
         assert result == 42
 
-    def test_has(self):
-        config.set('LIST', [1, 2, 3])
-        assert config.has('LIST', 2) is True
-        assert config.has('LIST', 999) is False
-
-
 class TestClone:
     def test_clone_returns_deep_copy(self):
         config.set('MUTABLE', {'a': 1})
@@ -65,7 +59,7 @@ class TestPath:
 
 class TestModuleAttributes:
     def test_all_exports(self):
-        expected = ['set', 'get', 'copy', 'update', 'settings']
+        expected = ['set', 'get', 'clone', 'update', 'settings']
         for name in expected:
             assert name in config.__all__
 

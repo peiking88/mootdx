@@ -10,7 +10,7 @@ from mootdx.logger import logger
 from mootdx.server import bestip
 from mootdx.utils import get_config_path
 
-__all__ = ['set', 'get', 'copy', 'update', 'settings']
+__all__ = ['set', 'get', 'clone', 'update', 'settings']
 
 settings = {
     'SERVER': {'HQ': HQ_HOSTS, 'EX': EX_HOSTS, 'GP': GP_HOSTS, 'HF': HF_HOSTS},
@@ -50,18 +50,6 @@ def setup():
         load_config()
 
     return True if settings else False
-
-
-def has(key, value):
-    """
-    通过 key 设置某一项值
-
-    :param key:
-    :param value:
-    :return:
-    """
-
-    return value in settings[key]
 
 
 def set(key, value):  # noqa
