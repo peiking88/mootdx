@@ -4,7 +4,7 @@ import warnings
 from pathlib import Path
 
 from mootdx import __version__
-from mootdx.logger import logger
+from mootdx.logger import logger, setup_logging
 from mootdx.utils import get_config_path
 from mootdx.utils import to_file
 
@@ -32,6 +32,7 @@ def _setup_verbose(logger, verbose):
 @click.version_option(__version__, '-V', '--version', prog_name='Mootdx', message='%(prog)s: v%(version)s')
 @click.help_option('-h', '--help')
 def entry():
+    setup_logging()
     ...
 
 

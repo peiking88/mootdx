@@ -113,9 +113,6 @@ def auto_reconnect(func):
     return wrapper
 
 
-instance: BaseQuotes
-
-
 def check_empty(value):
     """
     重试判断函数
@@ -123,14 +120,7 @@ def check_empty(value):
     :param value: 要判断的值
     :return:
     """
-    _empty = value.empty if isinstance(value, pd.DataFrame) else not value
-
-    # 判断状态空，则重连接
-    if instance and _empty:
-        logger.warning('返回数据空, 重新连接服务器...')
-        # instance.client.connect(*instance.server)
-
-    return _empty
+    return value.empty if isinstance(value, pd.DataFrame) else not value
 
 
 def _check_market(market):
@@ -182,9 +172,6 @@ class StdQuotes(BaseQuotes):
 
         self.client = StdHqAdapter(heartbeat=heartbeat, auto_retry=auto_retry, raise_exception=raise_exception)
         self.client.connect(ip, int(port), time_out=timeout)
-
-        global instance
-        instance = self
 
     def traffic(self):
         return self.client.get_traffic_stats()
@@ -431,22 +418,37 @@ class StdQuotes(BaseQuotes):
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
     def get_factor(self, symbol='000001', adjust='qfq'):
-        """获取复权因子序列（基于 TDX 服务器 XDXR 数据）。
+        """获取复权因子序列。
 
-        封装 opentdx AdjustmentFactorCrawler 的完整流程：
-        XDXR 事件获取 -> K线前收盘价映射 -> 累积因子计算。
+        主路径：TDX 服务器 XDXR 数据 + AdjustmentFactorCrawler。
+        备用路径：TX 数据为空或异常时回退到新浪财经。
 
         :param symbol: 股票代码
         :param adjust: 'qfq' (前复权) 或 'hfq' (后复权)
         :return: pd.DataFrame with columns [date, factor] (date为索引)
         """
+        df = self._get_factor_from_tdx(symbol, adjust)
+        if df is not None and not df.empty:
+            return df
+
+        logger.info(f"TDX factor empty for {symbol}, falling back to Sina")
+        from mootdx.utils.factor import fetch_factor_from_sina
+        return fetch_factor_from_sina(symbol, adjust)
+
+    def _get_factor_from_tdx(self, symbol, adjust):
+        """从 TDX 服务器获取复权因子（内部实现）。"""
         from opentdx.const import ADJUST
         from opentdx.crawler.adjustment_factor_crawler import AdjustmentFactorCrawler
         from opentdx.parser.quotation.company_info import XDXR
         from mootdx.utils import get_stock_market
 
         market = get_stock_market(symbol)
-        raw_events = self.client._client.call(XDXR(int(market), symbol))
+        try:
+            raw_events = self.client._client.call(XDXR(int(market), symbol))
+        except Exception as e:
+            logger.warning(f"TDX XDXR fetch failed for {symbol}: {e}")
+            return pd.DataFrame(columns=['date', 'factor'])
+
         if not raw_events:
             return pd.DataFrame(columns=['date', 'factor'])
 
@@ -824,9 +826,6 @@ class ExtQuotes(BaseQuotes):
             self.client.connect(*self.server)
         except Exception:  # noqa
             logger.error('服务器连接超时.')
-
-        global instance
-        instance = self
 
     @staticmethod
     def validate(market, symbol):

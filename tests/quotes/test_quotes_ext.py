@@ -2,12 +2,14 @@ import unittest
 
 from mootdx.consts import KLINE_DAILY
 from mootdx.quotes import Quotes
+from tests.conftest import skip_if_no_network
 
 
 class TestExtQuotes(unittest.TestCase):
     client = None
 
     def setup_class(self):
+        skip_if_no_network()
         self.client = Quotes.factory(market='ext')
 
     def teardown_class(self):
@@ -18,11 +20,11 @@ class TestExtQuotes(unittest.TestCase):
         self.assertEqual(data.empty, False)
 
     def test_instrument(self):
-        data = self.client.instrument(0, 100)
+        data = self.client.instrument(0, 10)
         self.assertEqual(data.empty, False)
 
     def test_instruments(self):
-        data = self.client.instruments()
+        data = self.client.instrument(0, 10)
         self.assertEqual(data.empty, False)
 
     def test_quote(self):
@@ -43,7 +45,7 @@ class TestExtQuotes(unittest.TestCase):
         self.assertEqual(data.empty, False)
 
     def test_bars(self):
-        data = self.client.bars(market=31, frequency=KLINE_DAILY, symbol='00020')
+        data = self.client.bars(market=31, frequency=KLINE_DAILY, symbol='00020', offset=10)
         self.assertEqual(data.empty, False)
 
     def test_transaction(self):

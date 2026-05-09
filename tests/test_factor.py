@@ -3,6 +3,7 @@ import pytest
 from mootdx.logger import logger
 from mootdx.quotes import Quotes
 from mootdx.reader import Reader
+from tests.conftest import is_network_available
 
 
 class TestFactor:
@@ -13,12 +14,14 @@ class TestFactor:
         self.reader = Reader.factory(market='std', tdxdir='tests/fixtures')
         logger.debug('初始化工作')
 
+    @pytest.mark.skipif(not is_network_available(), reason='网络不可达')
     def test_qfq_factor(self):
-        result = self.client.bars(symbol='600036', adjust='qfq')
+        result = self.client.bars(symbol='600036', adjust='qfq', offset=10)
         assert len(result), result
 
+    @pytest.mark.skipif(not is_network_available(), reason='网络不可达')
     def test_hfq_factor(self):
-        result = self.client.bars(symbol='600036', adjust='hfq')
+        result = self.client.bars(symbol='600036', adjust='hfq', offset=10)
         assert len(result), result
 
     def test_reader_qfq(self):

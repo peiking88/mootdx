@@ -4,7 +4,8 @@ from unittest import mock
 import pandas as pd
 import pytest
 
-from mootdx.quotes import BaseQuotes, Quotes, check_empty, valid_server
+from mootdx.quotes import BaseQuotes, Quotes, check_empty, valid_server, _check_market, _clamp_offset, _market_from_symbol
+from mootdx.exceptions import MootdxValidationException
 
 
 class TestValidServer:
@@ -109,3 +110,37 @@ class TestBaseQuotes:
             obj = BaseQuotes.__new__(BaseQuotes)
             obj.client = None
             assert obj.closed is True
+
+
+class TestCheckMarket:
+    def test_valid_market_0(self):
+        _check_market(0)
+
+    def test_valid_market_1(self):
+        _check_market(1)
+
+    def test_invalid_market_raises(self):
+        with pytest.raises(MootdxValidationException, match='市场代码错误'):
+            _check_market(2)
+
+
+class TestClampOffset:
+    def test_within_limit(self):
+        assert _clamp_offset(500) == 500
+        assert _clamp_offset(800) == 800
+
+    def test_exceeds_limit(self):
+        assert _clamp_offset(1000) == 800
+        assert _clamp_offset(900, limit=500) == 500
+
+
+class TestMarketFromSymbol:
+    def test_sz_market(self):
+        from mootdx.consts import MARKET_SZ
+        assert _market_from_symbol('000001') == MARKET_SZ
+
+    def test_sh_market(self):
+        from mootdx.consts import MARKET_SH
+        assert _market_from_symbol('600000') == MARKET_SH
+        assert _market_from_symbol('688001') == MARKET_SH
+        assert _market_from_symbol('300750') == MARKET_SH

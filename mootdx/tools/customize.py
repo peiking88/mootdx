@@ -166,6 +166,10 @@ def _blocknew(tdxdir: str = None, name: str = None, symbol: list = None, blk_fil
     vipdoc = Path(tdxdir, 'T0002', 'blocknew')
     symbol = list(set(symbol))
 
+    if not symbol:
+        logger.error('自定义板块股票代码为空.')
+        raise ValueError('自定义板块股票代码为空.')
+
     # 判断目录是否存在
     if not Path(vipdoc).is_dir():
         logger.error(f'自定义板块目录错误: {vipdoc}')

@@ -64,3 +64,9 @@ class TestBestip:
             with mock.patch('mootdx.server.get_config_path', return_value=str(config_path)):
                 bestip(console=False, limit=5, sync=True)
 
+        # RuntimeError 被捕获后应写入默认配置
+        assert config_path.exists()
+        data = json.load(open(config_path))
+        assert 'SERVER' in data
+        assert 'BESTIP' in data
+

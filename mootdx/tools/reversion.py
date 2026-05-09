@@ -2,13 +2,13 @@ import logging
 
 import pandas as pd
 
-from mootdx.utils.factor import fq_factor
+from mootdx.utils.factor import fetch_factor_from_sina
 
 logger = logging.getLogger(__name__)
 
 
 def factor_reversion(symbol: str, method: str = 'qfq', raw: pd.DataFrame = None) -> pd.DataFrame:
-    factor = fq_factor(symbol, method)
+    factor = fetch_factor_from_sina(symbol, method)
 
     if not factor.empty:
         factor = factor.sort_index(ascending=True)

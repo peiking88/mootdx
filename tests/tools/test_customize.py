@@ -38,20 +38,20 @@ def test_block_create(custom):
     assert custom.create(name='优质股1', symbol=['600036', '600016'])
 
     # 异常测试
-    with pytest.raises(Exception):
-        assert custom.create(name='优质股', symbol=['600036', '600016'])
+    with pytest.raises(ValueError, match='自定义板块名称重复'):
+        custom.create(name='优质股', symbol=['600036', '600016'])
 
-    with pytest.raises(Exception):
-        assert not custom.create(name='优质股2', symbol=[])
+    with pytest.raises(ValueError, match='自定义板块股票代码为空'):
+        custom.create(name='优质股2', symbol=[])
 
-    with pytest.raises(Exception):
-        assert not custom.create(name='优质股3', symbol=None)
+    with pytest.raises(TypeError):
+        custom.create(name='优质股3', symbol=None)
 
-    with pytest.raises(Exception):
-        assert not custom.create(name='', symbol=None)
+    with pytest.raises(TypeError):
+        custom.create(name='', symbol=None)
 
-    with pytest.raises(Exception):
-        assert not custom.create(name=None, symbol=None)
+    with pytest.raises(TypeError):
+        custom.create(name=None, symbol=None)
 
 
 def test_block_update(custom):

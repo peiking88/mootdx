@@ -6,6 +6,7 @@ import pytest
 
 from mootdx.affair import Affair
 from mootdx.logger import logger
+from tests.conftest import skip_if_no_network
 
 
 class TestAffair(unittest.TestCase):
@@ -13,14 +14,17 @@ class TestAffair(unittest.TestCase):
 
     downdir = 'tests/fixtures/tmp'
 
+    def setUp(self):
+        skip_if_no_network()
+
     def setup_class(self) -> None:
         logger.info('获取文件列表')
         self.files = [x['filename'] for x in Affair.files()]
-        # Path(self.downdir).is_file() or Path(self.downdir).mkdir()
 
     def teardown_class(self):
-        [Path(x).unlink() for x in glob.glob(f'{self.downdir}/*.*')]
-        Path(self.downdir).rmdir()
+        [Path(x).unlink(missing_ok=True) for x in glob.glob(f'{self.downdir}/*.*')]
+        if Path(self.downdir).exists():
+            Path(self.downdir).rmdir()
 
     def test_parse_err(self):
         data = Affair.parse(downdir=self.downdir)

@@ -3,11 +3,15 @@ import unittest
 import pytest
 
 from mootdx.quotes import Quotes
+from tests.conftest import skip_if_no_network
 
 
 class TestStdQuotes(unittest.TestCase):
     client = None
     server = ('39.100.68.59', 7709)
+
+    def setUp(self):
+        skip_if_no_network()
 
     def test_server(self):
         client = Quotes.factory(market='std', server=self.server, verbose=2, timeout=10)  # 标准市场

@@ -10,9 +10,12 @@ import pytest
 from mootdx import get_config_path
 from mootdx.contrib.adjust import get_adjust_year
 from mootdx.utils.adjust import get_xdxr
+from tests.conftest import skip_if_no_network
 
 
 class TestAdjust(unittest.TestCase):
+    def setUp(self):
+        skip_if_no_network()
     def test_adjust_before0(self):
         data = get_adjust_year(symbol='600000', year='2018', factor='before')
         self.assertFalse(data.empty)

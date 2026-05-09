@@ -1,4 +1,4 @@
-"""测试适配器在 opentdx 后端下的方法委托"""
+"""测试 StdHqAdapter / ExHqAdapter 在 opentdx 后端下的方法委托"""
 from collections import OrderedDict
 from unittest import mock
 

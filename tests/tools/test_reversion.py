@@ -3,6 +3,7 @@ import unittest
 from mootdx.quotes import Quotes
 from mootdx.tools.reversion import reversion
 from mootdx.utils.adjust import get_xdxr
+from tests.conftest import skip_if_no_network
 
 
 class TestReversion(unittest.TestCase):
@@ -11,6 +12,7 @@ class TestReversion(unittest.TestCase):
 
     # 初始化工作
     def setup_class(self):
+        skip_if_no_network()
         self.client = Quotes.factory(market='std', timeout=10)  # 标准市场
 
     # 退出清理工作
@@ -26,30 +28,30 @@ class TestReversion(unittest.TestCase):
         assert 'code' in xdxr.columns
 
     def test_reversion(self):
-        data = self.client.bars(symbol=self.symbol)
+        data = self.client.bars(symbol=self.symbol, offset=10)
         xdxr = get_xdxr(symbol=self.symbol)
 
         reversion(self.symbol, data, xdxr, 'qfq')
         # self.assertFalse(result.empty)
 
     def test_to_qfq(self):
-        data = self.client.bars(symbol=self.symbol, offset=800)
+        data = self.client.bars(symbol=self.symbol, offset=10)
         xdxr = get_xdxr(symbol=self.symbol)
 
         data0 = reversion(self.symbol, data, xdxr, 'qfq')
         assert data0.empty is False
 
-        data1 = self.client.bars(symbol=self.symbol, offset=800, adjust='Qfq')
+        data1 = self.client.bars(symbol=self.symbol, offset=10, adjust='Qfq')
         assert data1.empty is False
         assert data1.equals(data0)
 
     def test_to_hfq(self):
-        data = self.client.bars(symbol=self.symbol, offset=800)
+        data = self.client.bars(symbol=self.symbol, offset=10)
         xdxr = get_xdxr(symbol=self.symbol)
 
         data0 = reversion(self.symbol, data, xdxr, 'hfq')
         assert data.empty is False
 
-        data1 = self.client.bars(symbol=self.symbol, offset=800, adjust='HFQ')
+        data1 = self.client.bars(symbol=self.symbol, offset=10, adjust='HFQ')
         assert data1.empty is False
         assert data1.equals(data0)

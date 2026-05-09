@@ -12,10 +12,7 @@ from mootdx.consts import HQ_HOSTS
 from mootdx.exhq_adapter import ExHqAdapter
 from mootdx.hq_adapter import StdHqAdapter
 
-try:
-    from opentdx.const import main_hosts as hq_hosts
-except ImportError:
-    from tdxpy.constants import hq_hosts
+from opentdx.const import main_hosts as hq_hosts
 from mootdx.logger import logger
 from mootdx.utils import get_config_path
 
