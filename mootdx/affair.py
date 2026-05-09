@@ -48,13 +48,25 @@ async def fetch_file(downdir, file_obj):
 
 class Affair(object):
     @staticmethod
+    def _parse_with_opentdx(filepath, **kwargs):
+        """使用 opentdx HistoryFinancialCrawler 解析财务数据文件"""
+        from opentdx import HistoryFinancialCrawler
+
+        crawler = HistoryFinancialCrawler()
+        result = crawler.fetch_and_parse(path_to_download=str(filepath.parent),
+                                         reporthook=None, filename=filepath.name)
+        if result is not None:
+            return HistoryFinancialCrawler.to_df(result)
+        return None
+
+    @staticmethod
     def parse(downdir='.', filename=None, **kwargs):
         """
-        按目录解析文件
+        按目录解析文件。优先使用 opentdx 解析器，失败则回退到内置实现。
 
-        :param downdir:
-        :param filename:
-        :return:
+        :param downdir: 下载目录
+        :param filename: 文件名
+        :return: DataFrame or None
         """
 
         if not filename:
@@ -64,12 +76,18 @@ class Affair(object):
         filepath = Path(downdir) / filename
         filepath.exists() or Affair.fetch(downdir, filename)
 
-        if Path(filepath).exists():
-            return financial.FinancialReader().to_data(filepath, **kwargs)
+        if not Path(filepath).exists():
+            logger.warning(f'文件不存在：{filename}')
+            return None
 
-        logger.warning(f'文件不存在：{filename}')
+        try:
+            result = Affair._parse_with_opentdx(filepath, **kwargs)
+            if result is not None and not result.empty:
+                return result
+        except Exception:
+            logger.debug('opentdx 解析失败，回退到内置解析器')
 
-        return None
+        return financial.FinancialReader().to_data(filepath, **kwargs)
 
     @staticmethod
     def files():

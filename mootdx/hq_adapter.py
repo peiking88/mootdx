@@ -4,6 +4,7 @@ from collections import OrderedDict
 from opentdx import BLOCK_FILE_TYPE
 from opentdx import MARKET
 from opentdx import PERIOD
+from opentdx import parse_tdx_date
 from opentdx.client.quotationClient import QuotationClient
 from opentdx.parser.quotation import CompanyCategory
 from opentdx.parser.quotation import CompanyContent
@@ -77,17 +78,6 @@ class StdHqAdapter:
             return PERIOD(category)
         except ValueError:
             return PERIOD.DAILY
-
-    @staticmethod
-    def _parse_date(date):
-        if date is None or date == '':
-            return None
-        if isinstance(date, datetime.date):
-            return date
-        if isinstance(date, int) and date > 0:
-            s = str(date)
-            return datetime.date(int(s[:4]), int(s[4:6]), int(s[6:8]))
-        return None
 
     # -- 数据方法 --
 
@@ -192,7 +182,7 @@ class StdHqAdapter:
         ]
 
     def get_history_minute_time_data(self, market, code, date):
-        d = self._parse_date(date)
+        d = parse_tdx_date(date)
         result = self._client.get_tick_chart(self._convert_market(market), code, date=d)
         if not result:
             return []
@@ -221,7 +211,7 @@ class StdHqAdapter:
         ]
 
     def get_history_transaction_data(self, market, code, start, count, date):
-        d = self._parse_date(date)
+        d = parse_tdx_date(date)
         if d is None:
             return []
         result = self._client.get_transaction(self._convert_market(market), code, date=d)

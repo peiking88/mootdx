@@ -43,6 +43,42 @@ class ReaderBase(ABC):
 
         self.tdxdir = tdxdir
 
+    def validate(self, markets=None, periods=None):
+        """
+        校验本地 vipdoc 数据完整性
+
+        :param markets: 市场列表，如 ['sz', 'sh', 'bj', 'ds']，默认全部
+        :param periods: 周期列表，如 ['lday', 'fzline', 'minline']，默认全部
+        :return: 结构化校验结果 dict
+        """
+        from opentdx import VipdocValidator
+        validator = VipdocValidator(tdx_home=self.tdxdir)
+        return validator.validate(markets=markets, periods=periods)
+
+    def check_freshness(self, markets=None, periods=None):
+        """
+        检查本地 vipdoc 数据时效性
+
+        :param markets: 市场列表，默认全部
+        :param periods: 周期列表，默认全部
+        :return: 每个周期的 days_behind 信息
+        """
+        from opentdx import VipdocValidator
+        validator = VipdocValidator(tdx_home=self.tdxdir)
+        return validator.check_freshness(markets=markets, periods=periods)
+
+    def generate_report(self, markets=None, periods=None):
+        """
+        生成本地数据校验报告
+
+        :param markets: 市场列表，默认全部
+        :param periods: 周期列表，默认全部
+        :return: 中文校验报告字符串
+        """
+        from opentdx import VipdocValidator
+        validator = VipdocValidator(tdx_home=self.tdxdir)
+        return validator.generate_report(markets=markets, periods=periods)
+
     def find_path(self, symbol=None, subdir='lday', suffix=None, **kwargs):
         """
         自动匹配文件路径，辅助函数

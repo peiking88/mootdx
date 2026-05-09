@@ -6,11 +6,8 @@ import pandas as pd
 from mootdx.exhq_adapter import ExHqAdapter
 from mootdx.hq_adapter import StdHqAdapter
 
-try:
-    from tdxpy.exceptions import ValidationException
-except ImportError:
-    class ValidationException(Exception):
-        pass
+class ValidationException(Exception):
+    pass
 from tenacity import retry
 from tenacity import retry_if_exception_type
 from tenacity import retry_if_result
@@ -534,12 +531,6 @@ class StdQuotes(BaseQuotes):
         result = self.client.get_and_parse_block_info(tofile)
         return to_data(result, **kwargs)
 
-    # -- 增强 API（需要 opentdx 后端）--
-
-    def _require_opentdx(self):
-        if self.client._backend != 'opentdx':
-            raise NotImplementedError('此功能需要 opentdx 后端，请安装 opentdx: pip install opentdx')
-
     def _get_sp_client(self):
         """获取或创建 SP 模式客户端（MAC 协议，用于板块/资金流向）
 
@@ -563,7 +554,6 @@ class StdQuotes(BaseQuotes):
         :param count: 获取数量
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import BOARD_TYPE
 
         type_map = {
@@ -587,7 +577,6 @@ class StdQuotes(BaseQuotes):
         :param sort_order: 排序方向（opentdx SORT_ORDER 枚举）
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import SORT_TYPE
         from opentdx.const import SORT_ORDER
 
@@ -606,7 +595,6 @@ class StdQuotes(BaseQuotes):
         :param symbol: 股票代码
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import MARKET
 
         market = get_stock_market(symbol, string=False)
@@ -621,7 +609,6 @@ class StdQuotes(BaseQuotes):
         :param category: 排行类别（opentdx CATEGORY 枚举），默认全部A股
         :return: dict
         """
-        self._require_opentdx()
         from opentdx import CATEGORY
 
         cat = category or CATEGORY.A
@@ -638,7 +625,6 @@ class StdQuotes(BaseQuotes):
         :param filter_types: 筛选类型列表（opentdx FILTER_TYPE 枚举）
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import CATEGORY, SORT_TYPE
 
         cat = category or CATEGORY.A
@@ -653,7 +639,6 @@ class StdQuotes(BaseQuotes):
         :param symbol: 股票代码
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import MARKET
 
         market = get_stock_market(symbol, string=False)
@@ -667,7 +652,6 @@ class StdQuotes(BaseQuotes):
         :param market: 市场代码（0=深市, 1=沪市）
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import MARKET
 
         result = self.client._client.get_unusual(MARKET(market))
@@ -680,7 +664,6 @@ class StdQuotes(BaseQuotes):
         :param symbol: 股票代码
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import MARKET
 
         market = get_stock_market(symbol, string=False)
@@ -694,7 +677,6 @@ class StdQuotes(BaseQuotes):
         :param symbol_list: 指数代码列表，如 ['000001', '399001']
         :return: pd.DataFrame
         """
-        self._require_opentdx()
         from opentdx import MARKET
 
         code_list = []
@@ -703,6 +685,46 @@ class StdQuotes(BaseQuotes):
             code_list.append((MARKET(market), s))
         result = self.client._client.get_index_info(code_list)
         return to_data(result, **kwargs)
+
+    def qfq_bars(self, symbol='000001', frequency=9, start=0, offset=800, **kwargs):
+        """
+        获取前复权K线数据。自动获取除权数据并复权。
+
+        :param symbol: 股票代码
+        :param frequency: K线周期
+        :param start: 起始位置
+        :param offset: 获取数量
+        :return: pd.DataFrame (OHLC 已前复权)
+        """
+        raw = self.bars(symbol=symbol, frequency=frequency, start=start, offset=offset, **kwargs)
+        if raw is None or raw.empty:
+            return raw
+        xdxr = self.xdxr(symbol=symbol)
+        if xdxr is None or xdxr.empty:
+            return raw
+
+        from mootdx.tools.reversion import reversion
+        return reversion(symbol, raw, xdxr, type_='01')
+
+    def hfq_bars(self, symbol='000001', frequency=9, start=0, offset=800, **kwargs):
+        """
+        获取后复权K线数据。自动获取除权数据并复权。
+
+        :param symbol: 股票代码
+        :param frequency: K线周期
+        :param start: 起始位置
+        :param offset: 获取数量
+        :return: pd.DataFrame (OHLC 已后复权)
+        """
+        raw = self.bars(symbol=symbol, frequency=frequency, start=start, offset=offset, **kwargs)
+        if raw is None or raw.empty:
+            return raw
+        xdxr = self.xdxr(symbol=symbol)
+        if xdxr is None or xdxr.empty:
+            return raw
+
+        from mootdx.tools.reversion import reversion
+        return reversion(symbol, raw, xdxr, type_='02')
 
 
 class ExtQuotes(BaseQuotes):
@@ -745,12 +767,19 @@ class ExtQuotes(BaseQuotes):
     @staticmethod
     def validate(market, symbol):
         """
-        验证股票市场
+        验证股票市场。支持整数或 EX_CATEGORY 枚举。
 
-        :param market: 股票市场
+        EX_CATEGORY 枚举值:
+          HK=31(香港主板), HK_GEM=48(香港创业板), GGT=71(港股通),
+          US=74(美股), HSI=12001(恒指成分股), HSHC=12002(恒生红筹),
+          HSGQ=12004(恒生国企), HSGZ=12007(恒生国指), HSKJ=12012(恒生科技),
+          USZGG=13001(美股中概股), USZM=13002(知名美股)
+
+        :param market: 市场代码（int）或 EX_CATEGORY 枚举
         :param symbol: 股票代码
-        :return: tuple
+        :return: tuple (market_code, symbol)
         """
+        from opentdx.const import EX_CATEGORY
 
         if not market:
             if len(symbol.split('#')) > 1:
@@ -759,6 +788,9 @@ class ExtQuotes(BaseQuotes):
 
         if not market:
             raise ValueError('市场参数错误, 市场参数不能为空.')
+
+        if isinstance(market, EX_CATEGORY):
+            market = market.value[0] if isinstance(market.value, tuple) else market.value
 
         return int(market), symbol
 

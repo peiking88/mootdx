@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from opentdx import EX_MARKET
 from opentdx import PERIOD
+from opentdx import parse_tdx_date
 from opentdx.client import exQuotationClient
 
 from mootdx.logger import logger
@@ -60,17 +61,6 @@ class ExHqAdapter:
             return PERIOD(category)
         except ValueError:
             return PERIOD.DAILY
-
-    @staticmethod
-    def _parse_date(date):
-        if date is None or date == '':
-            return None
-        if isinstance(date, datetime.date):
-            return date
-        if isinstance(date, int) and date > 0:
-            s = str(date)
-            return datetime.date(int(s[:4]), int(s[4:6]), int(s[6:8]))
-        return None
 
     def get_markets(self):
         result = self._client.get_category_list()
@@ -194,7 +184,7 @@ class ExHqAdapter:
         return items
 
     def get_history_minute_time_data(self, market, code, date):
-        d = self._parse_date(date)
+        d = parse_tdx_date(date)
         result = self._client.get_tick_chart(self._convert_market(market), code, d)
         if not result:
             return []
@@ -246,7 +236,7 @@ class ExHqAdapter:
         return []
 
     def get_history_transaction_data(self, market, code, date, start=0, count=1800):
-        d = self._parse_date(date)
+        d = parse_tdx_date(date)
         if d is None:
             return []
         result = self._client.get_history_transaction(self._convert_market(market), code, d)

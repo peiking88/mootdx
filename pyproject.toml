@@ -30,7 +30,7 @@ mootdx = "mootdx.__main__:entry"
 python = "^3.8"
 httpx = "^0.25.0"
 tenacity = "^8.1.0"
-opentdx = "*"
+opentdx = ">=0.4.0"
 
 tqdm = "*"
 prettytable = "^3.5.0"

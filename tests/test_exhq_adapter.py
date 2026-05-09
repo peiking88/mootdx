@@ -16,24 +16,30 @@ class TestExHqAdapterInit:
 
 class TestParseDate:
     def test_none_returns_none(self):
-        assert ExHqAdapter._parse_date(None) is None
+        from opentdx import parse_tdx_date
+        assert parse_tdx_date(None) is None
 
     def test_empty_string_returns_none(self):
-        assert ExHqAdapter._parse_date('') is None
+        from opentdx import parse_tdx_date
+        assert parse_tdx_date('') is None
 
     def test_date_object_passthrough(self):
+        from opentdx import parse_tdx_date
         d = datetime.date(2024, 6, 1)
-        assert ExHqAdapter._parse_date(d) == d
+        assert parse_tdx_date(d) == d
 
     def test_int_yyyymmdd(self):
-        result = ExHqAdapter._parse_date(20240601)
+        from opentdx import parse_tdx_date
+        result = parse_tdx_date(20240601)
         assert result == datetime.date(2024, 6, 1)
 
     def test_non_date_string_returns_none(self):
-        assert ExHqAdapter._parse_date('abc') is None
+        from opentdx import parse_tdx_date
+        assert parse_tdx_date('abc') is None
 
     def test_zero_int_returns_none(self):
-        assert ExHqAdapter._parse_date(0) is None
+        from opentdx import parse_tdx_date
+        assert parse_tdx_date(0) is None
 
 
 class TestConnectArgs:
