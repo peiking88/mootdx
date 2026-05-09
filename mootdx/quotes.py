@@ -139,7 +139,7 @@ def _clamp_offset(offset, limit=800):
 
 
 def _market_from_symbol(symbol):
-    return MARKET_SZ if symbol[:2] in ['00', '88', '99'] else MARKET_SH
+    return MARKET_SZ if symbol[:2] in ['00', '30', '39', '88', '99'] else MARKET_SH
 
 
 class StdQuotes(BaseQuotes):
