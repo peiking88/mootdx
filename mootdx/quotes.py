@@ -425,6 +425,78 @@ class StdQuotes(BaseQuotes):
 
         return to_data(result, symbol=symbol, client=self, **kwargs)
 
+    def get_factor(self, symbol='000001', adjust='qfq'):
+        """获取复权因子序列（基于 TDX 服务器 XDXR 数据）。
+
+        封装 opentdx AdjustmentFactorCrawler 的完整流程：
+        XDXR 事件获取 -> K线前收盘价映射 -> 累积因子计算。
+
+        :param symbol: 股票代码
+        :param adjust: 'qfq' (前复权) 或 'hfq' (后复权)
+        :return: pd.DataFrame with columns [date, factor] (date为索引)
+        """
+        from opentdx.const import ADJUST
+        from opentdx.crawler.adjustment_factor_crawler import AdjustmentFactorCrawler
+        from opentdx.parser.quotation.company_info import XDXR
+        from mootdx.utils import get_stock_market
+
+        market = get_stock_market(symbol)
+        raw_events = self.client._client.call(XDXR(int(market), symbol))
+        if not raw_events:
+            return pd.DataFrame(columns=['date', 'factor'])
+
+        kline = self.get_k_data(symbol, '1990-01-01',
+                               pd.Timestamp.now().strftime('%Y-%m-%d'))
+        if kline is None or kline.empty:
+            return pd.DataFrame(columns=['date', 'factor'])
+
+        pre_close_prices = {}
+        for evt in raw_events:
+            d = evt.get('date')
+            if d is None:
+                continue
+            if hasattr(d, 'strftime'):
+                date_key = d.strftime('%Y-%m-%d')
+            elif isinstance(d, pd.Timestamp):
+                date_key = d.strftime('%Y-%m-%d')
+            else:
+                date_key = str(d)
+            dt = pd.Timestamp(date_key)
+            if 'date' in kline.columns:
+                prev = kline[kline['date'] < dt]
+            else:
+                prev = kline[kline.index < dt]
+            if not prev.empty:
+                pre_close_prices[date_key] = float(prev.iloc[-1]['close'])
+
+        adj_enum = ADJUST.QFQ if adjust == 'qfq' else ADJUST.HFQ
+        results = AdjustmentFactorCrawler.compute_full_factor(
+            raw_events, pre_close_prices, adj_enum)
+
+        if not results:
+            return pd.DataFrame(columns=['date', 'factor'])
+
+        records = []
+        for r in results:
+            d = r.get('date')
+            factor = r.get('factor')
+            if d is None or factor is None:
+                continue
+            if hasattr(d, 'strftime'):
+                d = d.strftime('%Y-%m-%d')
+            elif isinstance(d, pd.Timestamp):
+                d = d.strftime('%Y-%m-%d')
+            records.append({'date': d, 'factor': factor})
+
+        if not records:
+            return pd.DataFrame(columns=['date', 'factor'])
+
+        df = pd.DataFrame(records)
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        df = df.dropna(subset=['date'])
+        df = df.set_index('date').sort_index()
+        return df
+
     @auto_reconnect
     def finance(self, symbol='000001', **kwargs):
         """
