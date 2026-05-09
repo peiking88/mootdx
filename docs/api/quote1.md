@@ -511,3 +511,33 @@ from mootdx.quotes import Quotes
 client = Quotes.factory(market='std')
 client.block(tofile='block_zs.dat')
 ```
+
+## 26. 前复权K线
+
+自动获取除权数据并返回前复权K线，无需手动调用 `xdxr` 再复权。
+
+**参数说明:**
+
+- symbol: 股票代码
+- frequency: K线周期（同 `bars`）
+- start: 起始位置
+- offset: 获取数量
+
+**调用方法：**
+
+```python
+from mootdx.quotes import Quotes
+
+client = Quotes.factory(market='std')
+client.qfq_bars(symbol='600036', frequency=9, offset=800)
+```
+
+## 27. 后复权K线
+
+自动获取除权数据并返回后复权K线。
+
+**调用方法：**
+
+```python
+client.hfq_bars(symbol='600036', frequency=9, offset=800)
+```

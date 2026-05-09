@@ -110,3 +110,32 @@ from mootdx.reader import Reader
 reader = Reader.factory(market='std', tdxdir='C:/new_tdx')
 reader.block_new(name='最优盈利板块', symbol=['600001', '600002', '600003', '600004', ])
 ```
+
+## 06. 数据完整性校验
+
+校验本地 vipdoc 目录下各周期K线数据的完整性和时效性。
+
+**参数说明:**
+
+- markets: 市场列表，如 `['sz', 'sh', 'bj', 'ds']`，默认全部
+- periods: 周期列表，如 `['lday', 'fzline', 'minline']`，默认全部
+
+**调用方法：**
+
+```python
+from mootdx.reader import Reader
+
+reader = Reader.factory(market='std', tdxdir='C:/new_tdx')
+
+# 全量校验
+result = reader.validate()
+# 返回每个市场/周期的文件数、记录数、最早/最新日期、错误列表
+
+# 时效性检查
+freshness = reader.check_freshness()
+# 返回每个周期的 days_behind（距今天数）
+
+# 生成中文报告
+report = reader.generate_report()
+print(report)
+```
