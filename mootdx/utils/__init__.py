@@ -132,9 +132,6 @@ def to_data(v, **kwargs):
     if 'date' in result.columns:
         result.index = pd.to_datetime(result.date)
 
-    if 'vol' in result.columns:
-        result['volume'] = result.vol
-
     if adjust and adjust in ['qfq', 'hfq'] and symbol:
         from mootdx.utils.adjust import to_adjust
 

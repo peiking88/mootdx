@@ -1,17 +1,24 @@
 # 工作摘要
 
-**时间:** 2026-05-10 15:10:33
+**时间:** 2026-05-10
 
 ## 变更概要
 
-（无暂存变更）
+版本升级至 0.16.0 — 适配器列名规范化重构
 
-## 最近提交
+### StdHqAdapter (hq_adapter.py)
+- K线/分时/成交的 `vol` 输出统一改为 `volume`
+- 实时行情：`last_close` → `pre_close`、`cur_vol` → `current_volume`、`s_vol` → `sell_volume`、`b_vol` → `buy_volume`
+- 逐笔成交：`buyorsell` → `direction`
 
-```
-806dc05 fix: 服务器列表从 opentdx 动态获取，修复网络检测过期导致 59 条测试跳过
-7a040cb test: 完善 _market_from_symbol 测试覆盖深圳创业板/指数
-ea802e3 fix: _market_from_symbol 增加 '30'/'39' 前缀支持深圳创业板/深证成指等指数
-6b58d12 fix: _get_factor_from_tdx 使用 MARKET 枚举替代 int 构造 XDXR
-8420078 docs: 更新变更日志与工作摘要
-```
+### ExHqAdapter (exhq_adapter.py)
+- 扩展行情报价：`zongliang` → `volume`、`xianliang` → `current_volume`、`neipan` → `sell_volume`、`waipan` → `buy_volume`、`kaicang` → `open_position`、`chicang` → `hold_position`，补充 `amount` 字段
+- 扩展 K 线：`trade` → `volume`，移除冗余 `price` 字段
+- 扩展成交：`zengcang` → `position_change`
+
+### to_data (utils/__init__.py)
+- 移除 `vol→volume` 转换逻辑（职责归 adapter 层）
+
+### 测试
+- 新增 `tests/test_to_data_columns.py`：21 个列名规范测试用例
+- 全部 360 个测试通过

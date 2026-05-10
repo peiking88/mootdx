@@ -105,7 +105,7 @@ class StdHqAdapter:
                 ('low', bar.get('low', 0)),
                 ('close', bar.get('close', 0)),
                 ('amount', bar.get('amount', 0)),
-                ('vol', bar.get('vol', 0)),
+                ('volume', bar.get('vol', 0)),
                 ('year', year),
                 ('month', month),
                 ('day', day),
@@ -141,16 +141,16 @@ class StdHqAdapter:
             item['code'] = q.get('code', '')
             item['active1'] = q.get('active1', 0)
             item['price'] = q.get('close', 0)
-            item['last_close'] = q.get('pre_close', 0)
+            item['pre_close'] = q.get('pre_close', 0)
             item['open'] = q.get('open', 0)
             item['high'] = q.get('high', 0)
             item['low'] = q.get('low', 0)
             item['servertime'] = str(q.get('server_time', ''))
-            item['vol'] = q.get('vol', 0)
-            item['cur_vol'] = q.get('cur_vol', 0)
+            item['volume'] = q.get('vol', 0)
+            item['current_volume'] = q.get('cur_vol', 0)
             item['amount'] = q.get('amount', 0)
-            item['s_vol'] = q.get('s_vol', 0)
-            item['b_vol'] = q.get('b_vol', 0)
+            item['sell_volume'] = q.get('s_vol', 0)
+            item['buy_volume'] = q.get('b_vol', 0)
 
             for i in range(5):
                 bid = bids[i] if i < len(bids) else {}
@@ -189,7 +189,7 @@ class StdHqAdapter:
         return [
             OrderedDict([
                 ('price', t.get('price', 0)),
-                ('vol', t.get('vol', 0)),
+                ('volume', t.get('vol', 0)),
             ])
             for t in result
         ]
@@ -203,9 +203,9 @@ class StdHqAdapter:
             OrderedDict([
                 ('time', f'{t["time"].hour:02d}:{t["time"].minute:02d}' if t.get('time') else ''),
                 ('price', t.get('price', 0)),
-                ('vol', t.get('vol', 0)),
+                ('volume', t.get('vol', 0)),
                 ('num', t.get('trans', 0)),
-                ('buyorsell', action_map.get(t.get('action', ''), 2)),
+                ('direction', action_map.get(t.get('action', ''), 2)),
             ])
             for t in result
         ]
@@ -222,9 +222,9 @@ class StdHqAdapter:
             OrderedDict([
                 ('time', f'{t["time"].hour:02d}:{t["time"].minute:02d}' if t.get('time') else ''),
                 ('price', t.get('price', 0)),
-                ('vol', t.get('vol', 0)),
+                ('volume', t.get('vol', 0)),
                 ('num', t.get('trans', 0)),
-                ('buyorsell', action_map.get(t.get('action', ''), 2)),
+                ('direction', action_map.get(t.get('action', ''), 2)),
             ])
             for t in result
         ]

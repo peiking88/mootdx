@@ -96,12 +96,13 @@ class ExHqAdapter(StdHqAdapter):
         item['high'] = q.get('high', 0)
         item['low'] = q.get('low', 0)
         item['price'] = q.get('close', 0)
-        item['kaicang'] = q.get('open_position', 0)
-        item['zongliang'] = q.get('vol', 0)
-        item['xianliang'] = q.get('curr_vol', 0)
-        item['neipan'] = q.get('in_vol', 0)
-        item['waipan'] = q.get('out_vol', 0)
-        item['chicang'] = q.get('hold_position', 0)
+        item['open_position'] = q.get('open_position', 0)
+        item['volume'] = q.get('vol', 0)
+        item['current_volume'] = q.get('curr_vol', 0)
+        item['sell_volume'] = q.get('in_vol', 0)
+        item['buy_volume'] = q.get('out_vol', 0)
+        item['hold_position'] = q.get('hold_position', 0)
+        item['amount'] = q.get('amount', 0)
 
         for i in range(5):
             bid = bids[i] if i < len(bids) else {}
@@ -137,8 +138,7 @@ class ExHqAdapter(StdHqAdapter):
                 ('low', bar.get('low', 0)),
                 ('close', bar.get('close', 0)),
                 ('position', 0),
-                ('trade', bar.get('vol', 0)),
-                ('price', bar.get('close', 0)),
+                ('volume', bar.get('vol', 0)),
                 ('year', year),
                 ('month', month),
                 ('day', day),
@@ -202,7 +202,7 @@ class ExHqAdapter(StdHqAdapter):
                 ('minute', t.minute if t else 0),
                 ('price', txn.get('price', 0)),
                 ('volume', txn.get('vol', 0)),
-                ('zengcang', 0),
+                ('position_change', 0),
                 ('nature', 0),
                 ('nature_name', nature_name),
                 ('direction', direction),
