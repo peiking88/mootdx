@@ -13,13 +13,21 @@ def is_empty(obj):
     return not obj
 
 
-def is_network_available(host='39.100.68.59', port=7709, timeout=2):
-    """检测 TDX 服务器是否可达"""
+def is_network_available(timeout=2):
+    """检测 TDX 服务器是否可达，依次尝试 opentdx 服务器列表"""
     try:
-        with socket.create_connection((host, port), timeout=timeout):
-            return True
-    except OSError:
-        return False
+        from opentdx.const import main_hosts
+        hosts = [(h[1], h[2]) for h in main_hosts[:6]]  # 取前6个测速
+    except Exception:
+        hosts = [('110.41.147.114', 7709)]
+
+    for host, port in hosts:
+        try:
+            with socket.create_connection((host, port), timeout=timeout):
+                return True
+        except OSError:
+            continue
+    return False
 
 
 def skip_if_no_network(reason='网络不可达，跳过真实测试'):

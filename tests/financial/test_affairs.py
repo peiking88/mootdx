@@ -16,7 +16,7 @@ class TestAffair(unittest.TestCase):
     def setup_class(self) -> None:
         logger.debug('setup_class: 获取文件列表')
         self.files = [x['filename'] for x in Affair.files() if x['filesize'] > 165]
-        Path(self.downdir).is_file() or Path(self.downdir).mkdir()
+        Path(self.downdir).is_file() or Path(self.downdir).mkdir(exist_ok=True)
 
     def teardown_class(self):
         logger.debug('teardown_class: 删除测试数据')
