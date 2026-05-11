@@ -458,6 +458,14 @@ class StdQuotes(BaseQuotes):
         if kline is None or kline.empty:
             return pd.DataFrame(columns=['date', 'factor'])
 
+        # Ensure date column/index is datetime for Timestamp comparisons
+        if 'date' in kline.columns:
+            kline = kline.copy()
+            kline['date'] = pd.to_datetime(kline['date'], errors='coerce')
+        elif not isinstance(kline.index, pd.DatetimeIndex):
+            kline = kline.copy()
+            kline.index = pd.to_datetime(kline.index, errors='coerce')
+
         pre_close_prices = {}
         for evt in raw_events:
             d = evt.get('date')
