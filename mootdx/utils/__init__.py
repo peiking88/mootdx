@@ -1,4 +1,5 @@
 import hashlib
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -54,8 +55,6 @@ def get_stock_market(symbol='', string=False):
     elif symbol.startswith(('5', '6', '9', '7')):
         market = 'sh'
 
-    # logger.debug(f"market => {market}")
-
     if string is False:
         if market == 'sh':
             market = MARKET_SH
@@ -65,8 +64,6 @@ def get_stock_market(symbol='', string=False):
 
         if market == 'bj':
             market = MARKET_BJ
-
-    # logger.debug(f"market => {market}")
 
     return market
 
@@ -96,33 +93,15 @@ def to_data(v, **kwargs):
     :return: pd.DataFrame
     """
 
-    symbol = kwargs.get('symbol')
-    adjust = kwargs.get('adjust', '').lower()
-
-    if adjust in ['01', 'qfq', 'before']:
-        adjust = 'qfq'
-    elif adjust in ['02', 'hfq', 'after']:
-        adjust = 'hfq'
-    else:
-        adjust = None
-
-    # 空值
     if not isinstance(v, DataFrame) and not v:
         return pd.DataFrame(data=None)
 
-    # DataFrame
     if isinstance(v, DataFrame):
         result = v
-
-    # 列表
     elif isinstance(v, list):
         result = pd.DataFrame(data=v) if len(v) else None
-
-    # 字典
     elif isinstance(v, dict):
         result = pd.DataFrame(data=[v])
-
-    # 空值
     else:
         result = pd.DataFrame(data=[])
 
@@ -131,15 +110,6 @@ def to_data(v, **kwargs):
 
     if 'date' in result.columns:
         result.index = pd.to_datetime(result.date)
-
-    if adjust and adjust in ['qfq', 'hfq'] and symbol:
-        from mootdx.utils.adjust import to_adjust
-
-        result = to_adjust(result, symbol=symbol, adjust=adjust)
-
-    # @file_cache(refresh_time=3600 * 24, filepath=get_config_path('cache/'))
-    # def cache_data(data):
-    #     return data
 
     return result
 
@@ -158,22 +128,15 @@ def to_file(df, filename=None):
     path_name = Path(filename).parent
     extension = Path(filename).suffix
 
-    # 目录不存在创建目录
     Path(path_name).is_dir() or Path(path_name).mkdir(parents=True)
-
-    # methods = {'to_json': ['.json']}
-    # method = [k for k, v in methods if extension in v][0]
-    # getattr(pd, method)(filename)
 
     if extension == '.csv':
         return df.to_csv(filename, encoding='utf-8', index=False)
 
     if extension == '.xlsx' or extension == '.xls':
-        # openpyxl, xlwt
         return df.to_excel(filename, index=False)
 
     if extension == '.h5':
-        # tables
         return df.to_hdf(filename, 'df', index=False)
 
     if extension == '.json':
@@ -202,7 +165,7 @@ class TqdmUpTo(tqdm):
         if total_size is not None:
             self.total = total_size
 
-        self.update(downloaded - self.n)  # will also set self.n = b * bsize
+        self.update(downloaded - self.n)
 
 
 def get_config_path(config='config.json'):
@@ -216,22 +179,14 @@ def get_config_path(config='config.json'):
     pathname = Path(filename).parent
 
     Path(pathname).exists() or Path(pathname).mkdir(parents=True)
-    # Path(filename).exists() or Path(filename).write_text('None')
 
     return str(filename)
 
 
-# days 的 vol 比 day 大 100 倍
 FREQUENCY = ['5m', '15m', '30m', '1h', 'days', 'week', 'mon', 'ex_1m', '1m', 'day', '3mon', 'year']
 
 
-# FREQUEN = [48,    16,   8,     4,     1,     "1/5",  "1/30", "ex_1m", 240, "1",   "1/90", "1/365"]
-# FREQUENCY = ["5m", "15m", "30m", "1h", "days", "week", "mon", "ex_1m", "1m", "day", "3mon", "year"]
-
-
 def get_frequency(frequency) -> int:
-    # FREQUENCY = ['5m', '15m', '30m', '1h', 'day', 'week', 'mon', '1m', '1m', 'day', '3mon', 'year']
-
     try:
         if isinstance(frequency, str):
             frequency = FREQUENCY.index(frequency)

@@ -678,24 +678,6 @@ class StdQuotes(BaseQuotes):
         result = self.client._client.get_index_info(code_list)
         return to_data(result, **kwargs)
 
-    def _fq_bars(self, symbol='000001', frequency=9, start=0, offset=800, type_='01', **kwargs):
-        raw = self.bars(symbol=symbol, frequency=frequency, start=start, offset=offset, **kwargs)
-        if raw is None or raw.empty:
-            return raw
-        xdxr = self.xdxr(symbol=symbol)
-        if xdxr is None or xdxr.empty:
-            return raw
-
-        from mootdx.tools.reversion import reversion
-        return reversion(symbol, raw, xdxr, type_=type_)
-
-    def qfq_bars(self, symbol='000001', frequency=9, start=0, offset=800, **kwargs):
-        """获取前复权K线数据。自动获取除权数据并复权。"""
-        return self._fq_bars(symbol, frequency, start, offset, type_='01', **kwargs)
-
-    def hfq_bars(self, symbol='000001', frequency=9, start=0, offset=800, **kwargs):
-        """获取后复权K线数据。自动获取除权数据并复权。"""
-        return self._fq_bars(symbol, frequency, start, offset, type_='02', **kwargs)
 
 
 _retry = retry(
