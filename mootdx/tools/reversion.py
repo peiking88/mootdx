@@ -2,30 +2,7 @@ import logging
 
 import pandas as pd
 
-from mootdx.utils.factor import fetch_factor_from_sina
-
 logger = logging.getLogger(__name__)
-
-
-def factor_reversion(symbol: str, method: str = 'qfq', raw: pd.DataFrame = None) -> pd.DataFrame:
-    factor = fetch_factor_from_sina(symbol, method)
-
-    if not factor.empty:
-        factor = factor.sort_index(ascending=True)
-        raw = raw.sort_index(ascending=True)
-
-        data = pd.concat([raw, factor.loc[raw.index[0]: raw.index[-1], ['factor']]], axis=1)
-        fill_fn = data.factor.ffill if method == 'qfq' else data.factor.bfill
-        data.factor = fill_fn()
-        data.factor = data.factor.fillna(1.0)
-        data.factor = data.factor.astype(float)
-
-        for col in ['open', 'high', 'low', 'close', ]:
-            data[col] = data[col] * data['factor']
-
-        return data
-
-    return raw
 
 
 def etf_reversion(data, xdxr, adjust='01'):
@@ -122,4 +99,4 @@ def reversion(symbol, stock_data, xdxr, type_='01'):
     if symbol[:2] in ['15', '16', '50', '51']:
         stock_data = etf_reversion(data=stock_data, xdxr=_fetch_xdxr(xdxr), adjust=type_)
 
-    return factor_reversion(symbol=symbol, raw=stock_data, method=type_)
+    return stock_data
