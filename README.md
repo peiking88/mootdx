@@ -2,6 +2,22 @@
 
 高性能C++并行计算项目，基于Seastar框架，支持多种并行计算框架的性能对比。
 
+## 当前项目规范
+
+- 工作过程、生成文档、提交变更说明和 README 统一使用中文。
+- Git 远程仓库：`https://github.com/peiking88/mootdx.git`。
+- Git 认证使用 `GIT_USERNAME` + `GIT_PASSWORD` 环境变量，不提交任何凭据。
+- 禁止把 `http.sslVerify` 设为 `false`，禁止提交 `external/`，禁止修改 `external/` 下的源文件。
+- GitHub 访问按 `https://github.com`、`https://kkgithub.com`、`https://ghfast.top/https://github.com` 顺序尝试。
+- 每次提交前更新 `summary.md`、`docs/api.md` 和本 README，并按规则更新版本号。
+- 详细规范见 [`docs/project-rules.md`](docs/project-rules.md)，命令行接口见 [`docs/api.md`](docs/api.md)。
+
+初始化或接手项目后先运行：
+
+```bash
+scripts/check_environment.sh
+```
+
 ## 项目概述
 
 本项目展示了多种并行计算框架的使用方法和性能对比：
@@ -57,7 +73,7 @@ git submodule update --init --recursive
 ./build.sh -r -c
 
 # 指定并行任务数和目标
-./build.sh -r -j 8 prime_bench
+./build.sh -r -j $(nproc) prime_bench
 ```
 
 **构建脚本选项:**
@@ -67,7 +83,7 @@ git submodule update --init --recursive
 | `-d, --debug` | 构建 Debug 版本 |
 | `-a, --all` | 构建 Release 和 Debug 版本 |
 | `-c, --clean` | 清理构建目录后重新构建 |
-| `-j, --jobs N` | 并行编译任务数 (默认: $(nproc)) |
+| `-j, --jobs N` | 并行编译任务数 (默认: `$(nproc)`) |
 | `-h, --help` | 显示帮助信息 |
 
 ## 程序使用
@@ -84,10 +100,12 @@ Seastar程序使用框架内置的命令行参数处理：
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `-t, --tasks` | 任务总数 | 20 |
-| `-n, --chunk` | 每个任务的区间大小 | 100000 |
+| `-n, --chunk` | 每个任务的区间大小；长任务新增能力也必须支持 `n` 参数 | 100000 |
 | `-o, --output` | 输出CSV文件路径 | `<program_name>.csv` |
 | `-l, --log-level` | 日志级别 (debug/info/error/trace) | error |
 | `-c, --smp` | CPU核心数 (Seastar框架参数) | 系统核心数 |
+
+路径类参数必须可配置。批处理长任务必须支持中断重试和续跑。
 
 ### minimax_seastar_prime
 
@@ -233,3 +251,22 @@ rm -f input.dat chunk.*
 ## 许可证
 
 Apache License 2.0
+
+### 2026-05-14 08:34:40
+```
+ .trae/rules/project_rules.md |  40 ---
+ .wolf/OPENWOLF.md            | 135 --------
+ .wolf/anatomy.md             | 791 -------------------------------------------
+ .wolf/buglog.json            |  41 ---
+ .wolf/cerebrum.md            |  36 --
+ .wolf/config.json            |  73 ----
+ .wolf/cron-manifest.json     |  97 ------
+ .wolf/cron-state.json        |  14 -
+ .wolf/daemon.log             |   2 -
+ .wolf/designqc-report.json   |   6 -
+ .wolf/hooks/_session.json    |  12 -
+ .wolf/hooks/package.json     |   3 -
+ .wolf/hooks/post-read.js     |  69 ----
+ .wolf/hooks/post-write.js    | 503 ---------------------------
+ .wolf/hooks/pre-read.js      |  80 -----
+```

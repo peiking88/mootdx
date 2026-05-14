@@ -1,5 +1,54 @@
-# OpenWolf
+# 项目协作规范
 
-@.wolf/OPENWOLF.md
+本文件是当前仓库的顶层工作规范。所有自动化代理和人工协作者在修改本项目时，必须优先遵循本文件以及 `docs/project-rules.md`。
 
-This project uses OpenWolf for context management. Read and follow .wolf/OPENWOLF.md every session. Check .wolf/cerebrum.md before generating code. Check .wolf/anatomy.md before reading files.
+## 项目概览
+
+本项目是高性能 C++20 并行素数计算和文件处理基准项目，核心代码位于 `src/`，第三方依赖作为子模块位于 `external/`。
+
+## 目录约定
+
+| 目录 | 用途 |
+|---|---|
+| `docs/` | 项目规范、API 文档、调优文档 |
+| `cfg/` | 配置文件 |
+| `src/` | 业务源码 |
+| `scripts/` | 构建、检查、维护脚本 |
+| `tests/` | 单元测试和集成测试 |
+| `output/` | 运行输出，默认不提交 |
+| `external/` | 第三方依赖，禁止修改和提交 |
+
+## 必须遵循
+
+- 全程使用中文沟通；生成文档、提交说明、README 统一使用中文。
+- Git 用户固定为 `peiking88 <peiking88@users.noreply.github.com>`。
+- Git 认证使用 `GIT_USERNAME` + `GIT_PASSWORD` 环境变量，不把凭据写入仓库。
+- 远程仓库地址使用 `https://github.com/peiking88/mootdx.git`。
+- 所有旧 GitHub 镜像域名访问必须替换为 `https://github.com`。
+- 不允许把 `http.sslVerify` 设为 `false`。
+- 不修改 `external/` 下的源文件，不提交 `external/` 内容。
+- ninja 或 make 编译必须使用 `-j$(nproc)` 或等价并行参数。
+- 初始化完成后必须运行 `scripts/check_environment.sh`，检查环境完整性并报告结果。
+
+## 提交前要求
+
+每次提交前必须完成：
+
+1. 总结当前工作并更新 `summary.md`。
+2. 更新 API 文档和 README。
+3. 设置版本号：新增功能升次版本号，缺陷修改升三级版本号；升主版本号必须先征求用户意见。
+4. 检查提交内容不包含敏感信息、凭据、`external/` 内容或禁用的 SSL 校验配置。
+5. 先激活虚拟环境再运行测试；阶段完成要求单元测试通过，最终完成要求单元测试和集成测试全部通过。
+
+## 开发要求
+
+- 批处理长任务必须支持 `n` 参数、中断重试和续跑。
+- 路径类参数必须可配置，不能硬编码到业务逻辑中。
+- 适配依赖库新版本前，先阅读对应 API 文档。
+- 测试覆盖率目标大于 80%；用例不简化、不跳过。
+- 测试包含真实测试和 mock 测试，非必要不 mock。
+- 真实测试中返回数量大于 50 时，验证样本或总数。
+- 第三方组件不计入覆盖率，不做单元测试。
+- 优先从国内镜像下载软件、依赖包、模型和数据。
+
+详细规则见 `docs/project-rules.md`。

@@ -15,12 +15,12 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo seastar/install-dependencies.sh
         sudo apt-get install -qq ninja-build clang
+        sudo ./external/seastar/install-dependencies.sh
     - name: Configure
       run: cmake -Bbuild -S. -GNinja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
     - name: Build
-      run: ninja -C build
+      run: ninja -C build -j$(nproc)
     - name: Test
       run: |
         dd if=/dev/zero of=input.dat bs=4096 count=10000
