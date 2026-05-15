@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mootdx"
-version = "2.0.1"
+version = "2.0.2"
 description = "通达信数据读取接口."
 authors = ["bopo <ibopo@126.com>"]
 readme = "README.md"
@@ -56,7 +56,7 @@ log_cli_level = "DEBUG"
 
 
 [tool.commitizen]
-tag_format = "v$version"
+tag_format = "$version"
 annotated_tag = true
 changelog_file = "docs/history.md"
 changelog_incremental = true
