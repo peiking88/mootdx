@@ -1,16 +1,10 @@
 # 工作摘要
 
-**时间:** 2026-05-13
+**时间:** 2026-05-15 13:30:00
 
 ## 变更概要
+移除新浪交易日历接口（holidays/holiday2），统一使用通达信官网数据源；修复 holiday() 在 pandas 新版下 isin 匹配失效的 bug。
 
-测试质量修复：根据全项目测试评审结果，删除废弃测试文件并强化断言深度。
-
-### 删除
-- `tests/test_useless.py` — 删除永久跳过的测试，含破坏性 pip uninstall/install fixture（并行不安全）
-
-### 修改
-- `tests/test_quotes_more.py` — 9 处 `assert result is not None` 浅断言改为深断言，验证 DataFrame 结构、列名和具体字段值
-
-### 版本
-- 版本号升级至 2.0.1（patch）
+## 变更文件
+- `mootdx/utils/holiday.py` — 删除 holidays()/holiday2() 及 JS_DECODE，修复 isin → 直接比较
+- `mootdx/utils/holiday.js` — 删除（新浪数据解密脚本，不再需要）
