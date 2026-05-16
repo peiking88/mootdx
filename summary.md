@@ -1,12 +1,15 @@
 # 工作摘要
 
-**时间:** 2026-05-15 17:45:00
+**时间:** 2026-05-16
 
 ## 变更概要
-（无暂存变更）
 
-## 最近提交
-```
-36edfcd chore: 删除 holiday.js 及更新 README
-f8dd3d1 fix: 移除新浪交易日历接口，修复 holiday() pandas 兼容性 bug
-```
+### 适配 opentdx 0.5.x 接口变更
+- **hq_adapter.py**: 适配层新增 `_clean_code`，统一裁剪股票代码中 `sh/sz/bj` 前缀/后缀，支持无点/带点/大小写混合等 6 种格式
+- **pyproject.toml**: opentdx >= 0.5.0，pytest ^9.0，pytest-cov ^7.0
+
+### 修正测试遗留引用
+- **test_holiday.py**: holiday2→holiday_、holidays→_holiday，缓存文件名修正
+
+## 版本
+2.0.2 → 2.0.3

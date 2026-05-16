@@ -44,22 +44,22 @@ class TestHoliday(TestCase):
 @pytest.mark.skipif(not_mini_racer, reason='py_mini_racer not installed')
 class TestHoliday2(TestCase):
     def setUp(self) -> None:
-        Path(get_config_path('caches/holidays.plk')).write_text('')
+        Path(get_config_path('caches/holiday.plk')).unlink(missing_ok=True)
 
     def test_holiday_not_exists(self):
-        from mootdx.utils.holiday import holiday2
-        assert holiday2('2022-01-23').empty
+        from mootdx.utils.holiday import holiday_
+        assert holiday_('2022-01-23').empty
 
     def test_holiday_today(self):
-        from mootdx.utils.holiday import holiday2
-        assert not holiday2().empty
+        from mootdx.utils.holiday import _holiday
+        assert not _holiday().empty
 
     def test_holiday2not(self):
-        from mootdx.utils.holiday import holiday2
-        assert not holiday2('2022-01-26').empty
+        from mootdx.utils.holiday import _holiday
+        assert not _holiday().empty
 
 
 @pytest.mark.skipif(not_mini_racer, reason='py_mini_racer not installed')
 def test_holidays():
-    from mootdx.utils.holiday import holidays
-    assert not holidays().empty
+    from mootdx.utils.holiday import _holiday
+    assert not _holiday().empty

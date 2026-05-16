@@ -79,9 +79,26 @@ class StdHqAdapter:
         except ValueError:
             return PERIOD.DAILY
 
+    @staticmethod
+    def _clean_code(code):
+        code = code.lower()
+        for market in ('sh', 'sz', 'bj'):
+            if code.startswith(market + '.'):
+                code = code[len(market) + 1:]
+                break
+            if code.startswith(market):
+                code = code[len(market):]
+                break
+        for market in ('sh', 'sz', 'bj'):
+            if code.endswith('.' + market):
+                code = code[:-(len(market) + 1)]
+                break
+        return code
+
     # -- 数据方法 --
 
     def get_security_bars(self, category, market, code, start, count):
+        code = self._clean_code(code)
         result = self._client.get_kline(
             self._convert_market(market), code,
             self._convert_period(category),
@@ -182,6 +199,7 @@ class StdHqAdapter:
         ]
 
     def get_history_minute_time_data(self, market, code, date):
+        code = self._clean_code(code)
         d = parse_tdx_date(date)
         result = self._client.get_tick_chart(self._convert_market(market), code, date=d)
         if not result:
@@ -195,6 +213,7 @@ class StdHqAdapter:
         ]
 
     def get_transaction_data(self, market, code, start, count):
+        code = self._clean_code(code)
         result = self._client.get_transaction(self._convert_market(market), code)
         if not result:
             return []
@@ -211,6 +230,7 @@ class StdHqAdapter:
         ]
 
     def get_history_transaction_data(self, market, code, start, count, date):
+        code = self._clean_code(code)
         d = parse_tdx_date(date)
         if d is None:
             return []
@@ -230,6 +250,7 @@ class StdHqAdapter:
         ]
 
     def get_xdxr_info(self, market, code):
+        code = self._clean_code(code)
         result = self._client.call(XDXR(self._convert_market(market), code))
         if not result:
             return []
@@ -264,6 +285,7 @@ class StdHqAdapter:
         return items
 
     def get_finance_info(self, market, code):
+        code = self._clean_code(code)
         raw = self._client.call(Finance(self._convert_market(market), code))
         if not raw:
             return OrderedDict()
@@ -310,12 +332,14 @@ class StdHqAdapter:
         ])
 
     def get_company_info_category(self, market, code):
+        code = self._clean_code(code)
         result = self._client.call(CompanyCategory(self._convert_market(market), code))
         if not result:
             return []
         return [OrderedDict([(k, item.get(k, '')) for k in ('name', 'filename', 'start', 'length')]) for item in result]
 
     def get_company_info_content(self, market, code, filename, start, length):
+        code = self._clean_code(code)
         result = self._client.call(CompanyContent(self._convert_market(market), code, filename, start, length))
         return result if result else {}
 
