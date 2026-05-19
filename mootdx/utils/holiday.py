@@ -31,7 +31,7 @@ def holiday(date=None, format_=None, country=None, result=False):
         return None
 
     df = df[df['国家'] == country]
-    df = df[df.index == pd.Timestamp(date)]
+    df = df[df['日期'] == pd.Timestamp(date)]
 
     if result:
         return df
@@ -53,7 +53,7 @@ def _holiday():
     df = df.iloc[:, :4]
 
     df.columns = ['日期', '节日', '国家', '交易所']
-    df.index = pd.to_datetime(df['日期'].astype('str'), format='%Y%m%d')
+    df['日期'] = pd.to_datetime(df['日期'].astype('str'), format='%Y%m%d')
 
     if df.empty:
         Path(get_config_path('caches/holiday.plk')).unlink(missing_ok=True)
