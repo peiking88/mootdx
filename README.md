@@ -157,3 +157,13 @@ M1 mac 系统PyMiniRacer不能使用，访问:
  tests/test_useless.py     | 41 ---------------------
  5 files changed, 80 insertions(+), 75 deletions(-)
 ```
+
+### 2026-05-16 17:41:24
+```
+ mootdx/__init__.py          |  2 +-
+ mootdx/hq_adapter.py        | 24 ++++++++++++++++++++++++
+ pyproject.toml              |  8 ++++----
+ summary.md                  | 17 ++++++++++-------
+ tests/utils/test_holiday.py | 18 +++++++++---------
+ 5 files changed, 48 insertions(+), 21 deletions(-)
+```
