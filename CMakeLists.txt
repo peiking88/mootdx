@@ -60,3 +60,6 @@ target_link_libraries(dk4_seastar_prime Seastar::seastar)
 
 add_executable(gemma4_seastar_prime src/gemma4_seastar_prime.cpp)
 target_link_libraries(gemma4_seastar_prime Seastar::seastar)
+
+add_executable(longcat_seastar_prime src/longcat_seastar_prime.cpp)
+target_link_libraries(longcat_seastar_prime Seastar::seastar)

@@ -269,53 +269,59 @@ int main(int argc, char** argv) {
 
     std::vector<BenchmarkResult> results;
 
-    std::cout << "\n[1/9] 运行 sequence_prime (顺序计算)..." << std::endl;
+    std::cout << "\n[1/10] 运行 sequence_prime (顺序计算)..." << std::endl;
     results.push_back(runProgram("sequence_prime", base_args));
     std::rename("sequence_prime.csv", "./output/sequence_prime.csv");
 
-    std::cout << "[2/9] 运行 minimax_libfork_prime (libfork工作窃取)..." << std::endl;
+    std::cout << "[2/10] 运行 minimax_libfork_prime (libfork工作窃取)..." << std::endl;
     results.push_back(runProgram("minimax_libfork_prime", base_args));
     std::rename("minimax_libfork_prime.csv", "./output/minimax_libfork_prime.csv");
 
-    std::cout << "[3/9] 运行 glm5_libfork_prime (libfork fork-join)..." << std::endl;
+    std::cout << "[3/10] 运行 glm5_libfork_prime (libfork fork-join)..." << std::endl;
     results.push_back(runProgram("glm5_libfork_prime", base_args));
     std::rename("glm5_libfork_prime.csv", "./output/glm5_libfork_prime.csv");
 
-    std::cout << "[4/9] 运行 minimax_seastar_prime (Seastar工作窃取)..." << std::endl;
+    std::cout << "[4/10] 运行 minimax_seastar_prime (Seastar工作窃取)..." << std::endl;
     auto sargs4 = seastar_args;
     sargs4.push_back("-o");
     sargs4.push_back("./output/minimax_seastar_primes.csv");
     results.push_back(runProgram("minimax_seastar_prime", sargs4));
 
-    std::cout << "[5/9] 运行 glm5_seastar_prime (Seastar框架)..." << std::endl;
+    std::cout << "[5/10] 运行 glm5_seastar_prime (Seastar框架)..." << std::endl;
     auto sargs5 = seastar_args;
     sargs5.push_back("-o");
     sargs5.push_back("./output/glm5_seastar_primes.csv");
     results.push_back(runProgram("glm5_seastar_prime", sargs5));
 
-    std::cout << "[6/9] 运行 sonnet46_seastar_prime (Seastar分段筛法)..." << std::endl;
+    std::cout << "[6/10] 运行 sonnet46_seastar_prime (Seastar分段筛法)..." << std::endl;
     auto sargs6 = seastar_args;
     sargs6.push_back("-o");
     sargs6.push_back("./output/sonnet46_seastar_primes.csv");
     results.push_back(runProgram("sonnet46_seastar_prime", sargs6));
 
-    std::cout << "[7/9] 运行 kimi_seastar_prime (Seastar集中式队列)..." << std::endl;
+    std::cout << "[7/10] 运行 kimi_seastar_prime (Seastar集中式队列)..." << std::endl;
     auto sargs7 = seastar_args;
     sargs7.push_back("-o");
     sargs7.push_back("./output/kimi_seastar_primes.csv");
     results.push_back(runProgram("kimi_seastar_prime", sargs7));
 
-    std::cout << "[8/9] 运行 dk4_seastar_prime (Seastar集中式队列+async)..." << std::endl;
+    std::cout << "[8/10] 运行 dk4_seastar_prime (Seastar集中式队列+async)..." << std::endl;
     auto sargs8 = seastar_args;
     sargs8.push_back("-o");
     sargs8.push_back("./output/dk4_seastar_primes.csv");
     results.push_back(runProgram("dk4_seastar_prime", sargs8));
 
-    std::cout << "[9/9] 运行 gemma4_seastar_prime (Seastar Round-Robin分发)..." << std::endl;
+    std::cout << "[9/10] 运行 gemma4_seastar_prime (Seastar Round-Robin分发)..." << std::endl;
     auto sargs9 = seastar_args;
     sargs9.push_back("-o");
     sargs9.push_back("./output/gemma4_seastar_primes.csv");
     results.push_back(runProgram("gemma4_seastar_prime", sargs9));
+
+    std::cout << "[10/10] 运行 longcat_seastar_prime (Seastar集中式mutex队列)..." << std::endl;
+    auto sargs10 = seastar_args;
+    sargs10.push_back("-o");
+    sargs10.push_back("./output/longcat_seastar_primes.csv");
+    results.push_back(runProgram("longcat_seastar_prime", sargs10));
 
     if (results.empty()) {
         std::cerr << "错误: 无基准测试结果" << std::endl;

@@ -19,6 +19,7 @@
 - `kimi_seastar_prime`
 - `dk4_seastar_prime`
 - `gemma4_seastar_prime`
+- `longcat_seastar_prime`
 - `glm5_libfork_prime`
 - `minimax_libfork_prime`
 - `sequence_prime`

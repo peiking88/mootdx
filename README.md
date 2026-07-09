@@ -30,8 +30,12 @@ scripts/check_environment.sh
 | `sonnet46_seastar_prime` | Seastar | 素数并行计算器 (分段筛法) |
 | `glm5_libfork_prime` | libfork | 素数并行计算器 (框架fork-join模式) |
 | `minimax_libfork_prime` | libfork | 素数并行计算器 (线程+协程模式) |
+| `kimi_seastar_prime` | Seastar | 素数并行计算器 (集中式队列+atomic) |
+| `dk4_seastar_prime` | Seastar | 素数并行计算器 (集中式队列+async) |
+| `gemma4_seastar_prime` | Seastar | 素数并行计算器 (蛇形 Round-Robin 分发) |
+| `longcat_seastar_prime` | Seastar | 素数并行计算器 (集中式 mutex 队列) |
 | `sequence_prime` | 标准库 | 顺序素数计算器 |
-| `prime_bench` | 标准库 | 多框架性能基准测试 |
+| `prime_bench` | 标准库 | 多框架性能基准测试 (10 用例) |
 
 ## 系统要求
 
@@ -149,6 +153,28 @@ Seastar程序使用框架内置的命令行参数处理：
 - CSV文件: `glm5_seastar_prime.csv` (或 `-o` 指定)
 - 每行格式: `<start>-<end>,<core_id>,<prime1>,<prime2>,...`
 
+### longcat_seastar_prime
+
+使用Seastar框架的素数计算器，采用**集中式 mutex 互斥任务队列**。Worker 从共享 `std::queue` 反复弹出一个任务（每次加锁），计算后写入 per-shard 结果数组。
+
+**特点:**
+- 集中式任务队列由 `std::mutex` 保护，所有核心争抢任务
+- 共享 `prime::segmented_sieve` 分段筛法（与 peers 算法一致，保证可比）
+- 异步 DMA I/O 流式文件写入，避免 reactor 阻塞
+- 标准 CLI（`-t/-n/-o/-c`），输出 `素数总数:` 解析行供 `prime_bench` 采集
+
+```bash
+# 基本运行
+./build/release/longcat_seastar_prime -t 20 -n 100000 -c 4
+
+# 指定输出文件
+./build/release/longcat_seastar_prime -t 20 -n 100000 -o result.csv -c 4
+```
+
+**输出格式:**
+- CSV文件: `longcat_seastar_prime.csv` (或 `-o` 指定)
+- 每行格式: `<start>-<end>,<core_id>,<prime1>,<prime2>,...`
+
 ### prime_bench
 
 多框架性能基准测试，比较不同并行框架的性能。
@@ -238,8 +264,12 @@ rm -f input.dat chunk.*
 │   ├── sonnet46_seastar_prime.cpp # Seastar分段筛法
 │   ├── glm5_libfork_prime.cpp  # libfork fork-join模式
 │   ├── minimax_libfork_prime.cpp # libfork工作窃取模式
-│   ├── sequence_prime.cpp      # 顺序计算
-│   └── prime_bench.cpp         # 性能基准测试
+│   ├── kimi_seastar_prime.cpp    # Seastar集中式队列+atomic
+│   ├── dk4_seastar_prime.cpp     # Seastar集中式队列+async
+│   ├── gemma4_seastar_prime.cpp  # Seastar蛇形Round-Robin分发
+│   ├── longcat_seastar_prime.cpp # Seastar集中式mutex队列
+│   ├── sequence_prime.cpp        # 顺序计算
+│   └── prime_bench.cpp           # 性能基准测试 (10用例)
 ├── build/
 │   ├── release/            # Release 构建输出
 │   └── debug/              # Debug 构建输出
