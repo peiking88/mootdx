@@ -105,7 +105,7 @@ Seastar程序使用框架内置的命令行参数处理：
 |------|------|--------|
 | `-t, --tasks` | 任务总数 | 20 |
 | `-n, --chunk` | 每个任务的区间大小；长任务新增能力也必须支持 `n` 参数 | 100000 |
-| `-o, --output` | 输出CSV文件路径 | `<program_name>.csv` |
+| `-o, --output` | 输出CSV文件路径 | `output/<program_name>.csv` |
 | `-l, --log-level` | 日志级别 (debug/info/error/trace) | error |
 | `-c, --smp` | CPU核心数 (Seastar框架参数) | 系统核心数 |
 
@@ -129,7 +129,7 @@ Seastar程序使用框架内置的命令行参数处理：
 ```
 
 **输出格式:**
-- CSV文件: `minimax_seastar_prime.csv` (或 `-o` 指定)
+- CSV文件: `output/minimax_seastar_prime.csv` (或 `-o` 指定)
 - 每行格式: `<start>-<end>,<core_id>,<prime1>,<prime2>,...`
 
 ### glm5_seastar_prime
@@ -150,7 +150,7 @@ Seastar程序使用框架内置的命令行参数处理：
 ```
 
 **输出格式:**
-- CSV文件: `glm5_seastar_prime.csv` (或 `-o` 指定)
+- CSV文件: `output/glm5_seastar_prime.csv` (或 `-o` 指定)
 - 每行格式: `<start>-<end>,<core_id>,<prime1>,<prime2>,...`
 
 ### longcat_seastar_prime
@@ -172,7 +172,7 @@ Seastar程序使用框架内置的命令行参数处理：
 ```
 
 **输出格式:**
-- CSV文件: `longcat_seastar_prime.csv` (或 `-o` 指定)
+- CSV文件: `output/longcat_seastar_prime.csv` (或 `-o` 指定)
 - 每行格式: `<start>-<end>,<core_id>,<prime1>,<prime2>,...`
 
 ### prime_bench

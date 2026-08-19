@@ -218,7 +218,7 @@ int main(int argc, char** argv) {
     app.add_options()
         ("tasks,t", po::value<int>()->default_value(32), "任务总数")
         ("chunk,n", po::value<int>()->default_value(100000), "每个任务的区间大小")
-        ("output,o", po::value<std::string>()->default_value("dk4_seastar_prime.csv"), "输出CSV文件路径")
+        ("output,o", po::value<std::string>()->default_value("output/dk4_seastar_prime.csv"), "输出CSV文件路径")
         ("log-level,l", po::value<std::string>(), "日志级别 (trace/debug/info/warn/error)");
 
     return app.run(argc, argv, [&app] {

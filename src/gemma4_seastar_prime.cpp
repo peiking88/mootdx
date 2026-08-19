@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
     app.add_options()
         ("tasks,t", bpo::value<int>()->default_value(20), "任务总数")
         ("chunk,n", bpo::value<int>()->default_value(100000), "每个任务的区间大小")
-        ("output,o", bpo::value<std::string>()->default_value("gemma4_seastar_prime.csv"), "输出CSV文件路径");
+        ("output,o", bpo::value<std::string>()->default_value("output/gemma4_seastar_prime.csv"), "输出CSV文件路径");
 
     return app.run(argc, argv, [&app] {
         global_logger_registry().set_all_loggers_level(log_level::error);

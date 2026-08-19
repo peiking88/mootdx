@@ -291,7 +291,7 @@ int main(int argc, char** argv) {
     opts
         ("tasks,t", boost::program_options::value<int>()->default_value(4), "Number of tasks")
         ("chunk,n", boost::program_options::value<int>()->default_value(100000), "Size of each partition (max 100000)")
-        ("output,o", boost::program_options::value<std::string>()->default_value("primes.csv"), "Path for the output CSV file")
+        ("output,o", boost::program_options::value<std::string>()->default_value("output/sonnet46_seastar_primes.csv"), "Path for the output CSV file")
         ("range-start",
          boost::program_options::value<uint64_t>()->default_value(2),
          "Inclusive lower bound of the prime search range (legacy)")

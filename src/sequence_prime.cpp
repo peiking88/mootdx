@@ -19,7 +19,7 @@ struct Config {
     int num_tasks = 1;       // 任务总数（顺序执行，默认为1）
     int chunk_size = 100000;  // 每个任务的区间大小
     int num_threads = 1;      // 使用线程数（顺序执行，默认为1）
-    std::string output_file = "sequence_prime.csv";  // 输出文件路径
+    std::string output_file = "output/sequence_prime.csv";  // 输出文件路径
 };
 
 Config g_config;
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
     int num_tasks = 1;
     int chunk_size = 100000;
     int num_threads = 1;
-    std::string output_file = "sequence_prime.csv";
+    std::string output_file = "output/sequence_prime.csv";
 
     // 解析命令行参数
     int opt;
@@ -193,7 +193,7 @@ int main(int argc, char** argv) {
                 std::cout << "  -t <N>   任务总数 (默认: 1)" << std::endl;
                 std::cout << "  -n <N>   区间大小，每任务计算的数字范围 (默认: 100000，最大: 100000)" << std::endl;
                 std::cout << "  -c <N>   线程数 (默认: 1，顺序执行)" << std::endl;
-                std::cout << "  -o <文件> 输出CSV文件路径 (默认: sequence_prime.csv)" << std::endl;
+                std::cout << "  -o <文件> 输出CSV文件路径 (默认: output/sequence_prime.csv)" << std::endl;
                 std::cout << "\n示例:" << std::endl;
                 std::cout << "  " << argv[0] << " -t 1 -n 100000 -c 1 -o ./output/sequence_primes.csv" << std::endl;
                 std::cout << "  " << argv[0] << " -t 10 -n 100000 -c 1 -o ./output/sequence_primes.csv" << std::endl;

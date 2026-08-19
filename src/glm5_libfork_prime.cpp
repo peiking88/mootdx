@@ -342,7 +342,7 @@ int main(int argc, char** argv) {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
     // 5. 输出结果到CSV文件
-    std::string output_file = "glm5_libfork_prime.csv";
+    std::string output_file = "output/glm5_libfork_prime.csv";
     outputResults(output_file);
 
     // 6. 打印统计结果

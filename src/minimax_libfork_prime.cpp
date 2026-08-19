@@ -323,7 +323,7 @@ int main(int argc, char** argv) {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
     // 输出结果到CSV
-    std::string output_file = "minimax_libfork_prime.csv";
+    std::string output_file = "output/minimax_libfork_prime.csv";
     outputResults(output_file);
 
     // 打印统计结果
