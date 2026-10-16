@@ -253,10 +253,15 @@ rm -f input.dat chunk.*
 ### 代码结构
 
 ```
-/home/li/starter/
+/home/li/peiking88/starter/
 ├── CMakeLists.txt          # CMake配置
 ├── README.md               # 项目说明
 ├── build.sh                # 构建脚本
+├── docs/
+│   ├── api.md              # 命令行接口文档
+│   ├── project-rules.md    # 项目详细规范
+│   ├── iotune-manual.md    # iotune 手册
+│   └── codebase/           # 代码库分析文档（8 篇：技术栈/结构/架构/约定/集成/测试/关切/工作流）
 ├── src/
 │   ├── big_file_splitter.cpp   # 文件分割器
 │   ├── glm5_seastar_prime.cpp  # Seastar fork-join模式

@@ -1,5 +1,7 @@
 // prime_bench: 素数计算性能基准测试
-// 依次调用外部程序：sequence、minimax_libfork、glm5_libfork、minimax_seastar、sonnet46_seastar、kimi_seastar
+// 依次调用外部程序（10 用例）：sequence、minimax_libfork、glm5_libfork、
+// minimax_seastar、glm5_seastar、sonnet46_seastar、kimi_seastar、
+// dk4_seastar、gemma4_seastar、longcat_seastar
 // 使用 fork+execvp 替代 popen，避免 shell 注入
 
 #include <iostream>
